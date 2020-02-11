@@ -9,7 +9,6 @@ Ma Weiming's "Mastering Python for Finance", published by Packt.
 __all__ = ['capm', 'apt', 'lin_programming', 'int_programming', 'linalg',
            'lu_decomp', 'cholesky', 'qr_decomp', 'jacobi', 'gauss_seidel']
 
-IMGDIR = './img/chap2/'
 STR_FMT = '{0}\n{1}\n'
 
 
