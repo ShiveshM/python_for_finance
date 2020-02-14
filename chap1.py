@@ -4,6 +4,7 @@
 
 This module wraps into standalone functions the contents of Chapter 1 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
+
 """
 
 import pandas as pd
@@ -16,7 +17,9 @@ __all__ = ['version', 'plot_time_series', 'plot_candlestick',
            'plot_correlation', 'sma', 'ema']
 
 IMGDIR = './img/chap1/'
+"""Path to store images."""
 STR_FMT = '{0}\n{1}\n'
+"""String formatting for printing to standard output."""
 
 
 def version() -> None:
@@ -139,9 +142,12 @@ def time_series_analytics() -> None:
 def qq_plot() -> None:
     """Create a Q-Q (quantile-quantile) plot.
 
+    Notes
+    ----------
     This is a graphical method for comparing two probability distributions by
     plotting their quantiles against each other, for example to test if the
     daily changes of a stock are distributed normally.
+
     """
     from scipy import stats
 

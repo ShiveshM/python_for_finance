@@ -4,6 +4,7 @@
 
 This module wraps into standalone functions the contents of Chapter 3 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
+
 """
 
 from typing import Callable, Tuple
@@ -13,6 +14,7 @@ __all__ = ['incremental', 'bisection', 'newtons', 'secant', 'scipy',
            'scipy_general']
 
 STR_FMT = '{0}\n{1}\n'
+"""String formatting for printing to standard output."""
 
 
 def incremental() -> None:
@@ -26,13 +28,19 @@ def incremental() -> None:
 
         Parameters
         ----------
-        func : Function to evaluate
-        bounds: Lower and upper bounds
-        increment: Incremental value in searching
+        func : Callable[[float], float]
+            Function to evaluate
+        bounds : Tuple[int]
+            Lower and upper bounds
+        increment : float
+            Incremental value in searching
 
         Returns
         ----------
-        (value at the root, number of iterations used)
+        root : float
+            Value at the root
+        n_iter : int
+            Number of interations used
 
         """
         low, high = bounds
@@ -72,6 +80,8 @@ def incremental() -> None:
 def bisection() -> None:
     """Bisection method root-finding algorithm.
 
+    Notes
+    ----------
     Suppose we know two points of an interval a and b, and that f(a) <0 and
     f(b) > 0 lie along a continuos function. Taking the midpoint of this
     interval as c, where c = (a + b) / 2; the bisection method then evaluates
@@ -95,14 +105,21 @@ def bisection() -> None:
 
         Parameters
         ----------
-        func : Function to evaluate
-        bounds: Lower and upper bounds
-        tol: Tolerance to compute to
-        max_iter: Maximum number of iterations
+        func : Callable[[float], float]
+            Function to evaluate
+        bounds : Tuple[int]
+            Lower and upper bounds
+        tol : float, optional
+            Tolerance to compute to (the default is 1E-5)
+        max_iter : int, optional
+            Maximum number of iterations (the default is 1E6)
 
         Returns
         ----------
-        (value at the root, number of iterations used)
+        root : float
+            Value at the root
+        n_iter : int
+            Number of interations used
 
         """
         a, b = bounds
@@ -135,10 +152,14 @@ def bisection() -> None:
 def newtons() -> None:
     """Newton-Raphson method root-finding algorithm.
 
+    Notes
+    ----------
     This method uses an iterative procedure to solve for the root using
     information about the derivative of a function. The approximation to the
     next value of x is given as:
+
                         x' = x - f(x)/f'(x)
+
     Here, the tangent line intersects the x axis at x', which produces y = 0.
     This also represents a first-order Taylor expansion about x', such that the
     new point solves f(x' + Δx) = 0.
@@ -160,15 +181,23 @@ def newtons() -> None:
 
         Parameters
         ----------
-        func : Function to evaluate
-        df : Derivative of the function to evaluate
-        seed : Initial guess
-        tol: Tolerance to compute to
-        max_iter: Maximum number of iterations
+        func : Callable[[float], float]
+            Function to evaluate
+        df : Callable[[float], float]
+            Derivative of the function to evaluate
+        seed : float
+            Initial guess
+        tol : float, optional
+            Tolerance to compute to (the default is 1E-5)
+        max_iter : int, optional
+            Maximum number of iterations (the default is 1E6)
 
         Returns
         ----------
-        (value at the root, number of iterations used)
+        root : float
+            Value at the root
+        n_iter : int
+            Number of interations used
 
         """
         x = seed
@@ -200,6 +229,8 @@ def newtons() -> None:
 def secant() -> None:
     """Secant method root-finding algorithm.
 
+    Notes
+    ----------
     This method uses secant lines to find the root, which is a straight line
     that intersects two points of a curve. By successively drawing such secant
     lines, the root of the function can be approximated.
@@ -207,9 +238,13 @@ def secant() -> None:
     An initial guess of the two x axis values, a and b, is required. A secant
     line, y, is drawn from f(b) to f(a) and intersects at the point c on the x
     axis such that:
+
                 y = (c - b) * (f(b) - f(a)) / (b - a) + f(b)
+
     Therefore,
+
                    c = b - f(b) * (b - a) / (f(b) - f(a))
+
     On the next iteration, a and b will take on the values b and c,
     respectively. This method then repeats itself, terminating when the maximum
     number of iterations is reached, or the difference between b and c has
@@ -227,14 +262,21 @@ def secant() -> None:
 
         Parameters
         ----------
-        func : Function to evaluate
-        bounds: Lower and upper bounds
-        tol: Tolerance to compute to
-        max_iter: Maximum number of iterations
+        func : Callable[[float], float]
+            Function to evaluate
+        bounds : Tuple[int]
+            Lower and upper bounds
+        tol : float, optional
+            Tolerance to compute to (the default is 1E-5)
+        max_iter : int, optional
+            Maximum number of iterations (the default is 1E6)
 
         Returns
         ----------
-        (value at the root, number of iterations used)
+        root : float
+            Value at the root
+        n_iter : int
+            Number of interations used
 
         """
         a, b = bounds
@@ -263,9 +305,13 @@ def secant() -> None:
 
 
 def scipy() -> None:
-    """Scipy root-finding scalar functions.
+    """Scipy root-finding scalar functions [1]_.
 
-    Documentation at https://docs.scipy.org/doc/scipy/reference/optimize.html
+    References
+    ----------
+    .. [1] SciPy, "Optimization and Root Finding (scipy.optimize) - SciPy
+           Reference Guide",
+           https://docs.scipy.org/doc/scipy/reference/optimize.html
 
     """
     import scipy.optimize as optimize
@@ -294,9 +340,13 @@ def scipy() -> None:
 
 
 def scipy_general() -> None:
-    """Scipy general multidimensional non-linear solvers.
+    """Scipy general multidimensional non-linear solvers [1]_.
 
-    Documentation at https://docs.scipy.org/doc/scipy/reference/optimize.html
+    References
+    ----------
+    .. [1] SciPy, "Optimization and Root Finding (scipy.optimize) - SciPy
+           Reference Guide",
+           https://docs.scipy.org/doc/scipy/reference/optimize.html
 
     """
     import scipy.optimize as optimize

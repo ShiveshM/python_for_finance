@@ -4,6 +4,7 @@
 
 This module wraps into standalone functions the contents of Chapter 4 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
+
 """
 
 import math
@@ -12,12 +13,16 @@ import math
 __all__ = ['european_option']
 
 IMGDIR = './img/chap4/'
+"""Path to store images."""
 STR_FMT = '{0}\n{1}\n'
+"""String formatting for printing to standard output."""
 
 
 def european_option() -> None:
     """Pricing European options using a binomial tree.
 
+    Notes
+    ----------
     Consider a two-step binomial tree. A non-dividend paying stock starts at
     $50, and, in each of the two time steps, the stock may go up by 20% or go
     down by 20%. Suppose the risk-free rate is 5% per annum and that the time
@@ -44,16 +49,21 @@ def european_option() -> None:
     from holding the stock and taking into account the up and down state
     possibilities, would be equal to the continuously compounded risk-free rate
     expected in the next time step, as follows
+
                         e^{rt} = qu + (1 - q)d
+
     The risk-neutral probability q of investing in the stock is then
+
                       q = (e^{rt} - d) / (u - d)
 
     Note that for forward contracts, in the risk-neutral sense, the expected
     growth rate from holding a forward contract is zero, and so the
     risk-neutral probability can be written as
+
                          q = (1 - d) / (u - d)
 
     The present value of the put option can be priced as:
+
           p_t = e^{-r(T - t)}[ 0(q)^2 + 2(48)(q)(1 - q) + 20(1 - q)^2 ]
 
     """

@@ -4,25 +4,32 @@
 
 This module wraps into standalone functions the contents of Chapter 2 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
+
 """
 
 __all__ = ['capm', 'apt', 'lin_programming', 'int_programming', 'linalg',
            'lu_decomp', 'cholesky', 'qr_decomp', 'jacobi', 'gauss_seidel']
 
 STR_FMT = '{0}\n{1}\n'
+"""String formatting for printing to standard output."""
 
 
 def capm() -> None:
     """The Capital Asset Pricing Model (CAPM).
 
+    Notes
+    ----------
     The CAPM relates the risk premium of an asset and the market risk premium
     through the asset's beta:
+
                    E[R_i] - R_f = β(E[R_m] - R_f)
+
     where
         - R_f is the risk-free return e.g. interest rate on gov bonds
         - E[R_i] is the expected returns on the asset
         - E[R_m] is the expected return of the market
         - β is the sensitivity of the asset to the general market, extracted as
+
                     β = Cov[R_i, R_m] / Var[R_m]
 
     For a portfolio of assets, we can construct combinations or weights of
@@ -75,13 +82,18 @@ def capm() -> None:
 def apt() -> None:
     """The Arbitrage Pricing Theory model (APT)
 
+    Notes
+    ----------
     APT is a general theory of asset pricing that holds that the expected
     return of an asset can be modeled as a linear function of various
     factors, such as inflation rate, GDP growth rate, real interest rates, or
     dividends, where sensitivity to changes in each factor is represented by a
     factor-specific beta coefficient.
+
              R_i = α_i + β_i1 f_1 + β_i2 f_2 + ... + β_ij f_j + ϵ_i
+
           E[R_i] = R_f + β_i1 F_1 + β_i2 F_2 + ... + β_ij F_j
+
     where
         - R_i is the returns on asset i
         - α_i is a constant for asset i
@@ -118,6 +130,8 @@ def apt() -> None:
 def lin_programming() -> None:
     """Use linear programming to determine portfolio allocation.
 
+    Notes
+    ----------
     Suppose we want to invest in two securities X and Y in such a way that we
     have three units of X for every two units of Y, such that the total number
     of units is maximised. However there are certain constraints:
@@ -164,6 +178,8 @@ def lin_programming() -> None:
 def int_programming() -> None:
     """Use linear integer programming to determine portfolio allocation.
 
+    Notes
+    ----------
     Suppose we must go for 150 contracts in a particular OTC exotic security
     from three dealers.
     - Dealer X quoted $500 per contract plus handling fees of $4,000,
@@ -241,6 +257,8 @@ def int_programming() -> None:
 def linalg() -> None:
     """Solving linear equations using matrices.
 
+    Notes
+    ----------
     If a set of systematic linear equations has constraints that are
     deterministic, we can represent the problem as matrices and apply matrix
     algebra.
@@ -254,6 +272,7 @@ def linalg() -> None:
       units of security c invested, the net position must be five long units.
 
     This can be written in matrix form Ax = B with:
+
         [ 2 1 1 ]       [ a ]       [ 4 ]
     A = [ 1 3 2 ] , x = [ b ] , B = [ 5 ]
         [ 1 0 0 ]       [ c ]       [ 6 ]
@@ -285,9 +304,13 @@ def linalg() -> None:
 def lu_decomp() -> None:
     """The LU (lower-upper) decomposition.
 
+    Notes
+    ----------
     LU decomposition decomposes a matrix A into a lower triangular matrix, L,
     and an upper triangular matrix, U.
-                         A = LU
+
+                             A = LU
+
     [ a b c ]   [ l_11 0    0   ]   [ u_11 u_12 u_13 ]
     [ d e f ] = [ l_21 l_22 0   ] × [ 0    u_22 u_23 ]
     [ g h i ]   [ l_31 l_32 l_33]   [ 0    0    u_33 ]
@@ -330,8 +353,12 @@ def lu_decomp() -> None:
 def cholesky() -> None:
     """The Cholesky decomposition.
 
+    Notes
+    ----------
     The matrix being decomposed must be Hermitian and positive definite.
+
                             A = L L^T*
+
     where L is the lower triangular matrix with real and positive numbers on
     the diagonals, and L^T* is the conjugate transpose of L.
 
@@ -370,8 +397,11 @@ def cholesky() -> None:
 def qr_decomp() -> None:
     """The QR decomposition.
 
+    Notes
+    ----------
     The matrix being decomposed is broken down into an orthogonal matrix, Q,
     and an upper triangular matrix, R:
+
                             A = Q R
 
     An orthogonal matrix Q:
@@ -412,11 +442,15 @@ def qr_decomp() -> None:
 def jacobi() -> None:
     """The Jacobi method.
 
+    Notes
+    ----------
     This method solves a system of linear equations iteratively along its
     diagonal elements. The iteration terminates when the solution converges.
 
     The matrix is decomposed into two matrices of the same size such that
+
                             A = D + R
+
     where D consists of only the diagonal components of A, and the other matrix
     R consists of the remaining components. The solution is obtained
     iteratively,
@@ -470,10 +504,14 @@ def jacobi() -> None:
 def gauss_seidel() -> None:
     """The Gauss-Seidel method.
 
+    Notes
+    ----------
     This method solves a system of linear equations iteratively. Here the
     matrix is decomposed into a lower triangular matrix, L, and an upper
     triangular matrix, U.
+
                             A = L + U
+
     The solution is obtained iteratively,
     - Ax = B
     - (L + U)x = B
