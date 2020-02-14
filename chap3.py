@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
-"""Utility functions from Chapter 3 of Mastering Python for Finance.
+"""
+Utility functions from Chapter 3 of Mastering Python for Finance.
 
 This module wraps into standalone functions the contents of Chapter 3 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
@@ -79,13 +80,12 @@ def bisection() -> None:
 
     Notes
     ----------
-    Suppose we know two points of an interval `a` and `b`, and that
-    ``f(a) < 0`` and ``f(b) > 0`` lie along a continuos function. Taking the
-    midpoint of this interval as `c`, where ``c = (a + b) / 2``; the bisection
-    method then evaluates this value as ``f(c)``. In the next evaluation, `c`
-    is replaced as either `a` or `b` accordingly. With the new interval
-    shortened, the bisection method repeats with the same evaluation to
-    determine the next value of `c`.
+    Suppose we know two points of an interval a and b, and that f(a) < 0 and
+    f(b) > 0 lie along a continuos function. Taking the midpoint of this
+    interval as c, where c = (a + b) / 2; the bisection method then evaluates
+    this value as f(c). In the next evaluation, c is replaced as either a or b
+    accordingly. With the new interval shortened, the bisection method repeats
+    with the same evaluation to determine the next value of c.
 
     The biggest advantage of this method is that it is guaranteed to converge
     to an approximation of the root. Also to note is that this method does not
@@ -152,19 +152,19 @@ def newtons() -> None:
     ----------
     This method uses an iterative procedure to solve for the root using
     information about the derivative of a function. The approximation to the
-    next value of `x` is given as:
+    next value of x is given as:
 
-    .. math: x' = x - f(x)/f'(x)
+                            x' = x - f(x)/f'(x)
 
-    Here, the tangent line intersects the `x` axis at `x'`, which produces
-    `y = 0`. This also represents a first-order Taylor expansion about `x'`,
-    such that the new point solves :math:`f(x' + \delta x) = 0`.
+    Here, the tangent line intersects the x axis at x', which produces
+    y = 0. This also represents a first-order Taylor expansion about x',
+    such that the new point solves f(x' + \delta x) = 0.
 
-    An initial guess value is required to compute the values of `f(x)` and
-    `f'(x)`.  The rate of convergence is quadratic, which is considered to be
-    extremely fast. A drawback is that it does not gaurantee global convergence
-    to the solution - e.g. when the solution contains more than one root or if
-    the algorithm arrives at a local extremum. It is required that the input
+    An initial guess value is required to compute the values of f(x) and f'(x).
+    The rate of convergence is quadratic, which is considered to be extremely
+    fast. A drawback is that it does not gaurantee global convergence to the
+    solution - e.g. when the solution contains more than one root or if the
+    algorithm arrives at a local extremum. It is required that the input
     function be differentiable.
 
     """
@@ -228,19 +228,19 @@ def secant() -> None:
     that intersects two points of a curve. By successively drawing such secant
     lines, the root of the function can be approximated.
 
-    An initial guess of the two `x` axis values, `a` and `b`, is required. A
-    secant line, `y`, is drawn from `f(b)` to `f(a)` and intersects at the
-    point `c` on the `x` axis such that:
+    An initial guess of the two x axis values, a and b, is required. A secant
+    line, y, is drawn from f(b) to f(a) and intersects at the point c on the x
+    axis such that:
 
-    .. math: y = (c - b) * (f(b) - f(a)) / (b - a) + f(b)
+                  y = (c - b) * (f(b) - f(a)) / (b - a) + f(b)
 
     Therefore,
 
-    .. math: c = b - f(b) * (b - a) / (f(b) - f(a))
+                    c = b - f(b) * (b - a) / (f(b) - f(a))
 
-    On the next iteration, `a` and `b` will take on the values `b` and `c`,
+    On the next iteration, a and b will take on the values b and c,
     respectively. This method then repeats itself, terminating when the maximum
-    number of iterations is reached, or the difference between `b` and `c` has
+    number of iterations is reached, or the difference between b and c has
     reached a specified tolerance level.
 
     The rate of convergence is considered to be superlinear. It converges much

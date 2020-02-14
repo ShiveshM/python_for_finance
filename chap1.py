@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
-"""Utility functions from Chapter 1 of Mastering Python for Finance.
+"""
+Utility functions from Chapter 1 of Mastering Python for Finance.
 
 This module wraps into standalone functions the contents of Chapter 1 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
