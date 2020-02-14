@@ -140,7 +140,8 @@ def time_series_analytics() -> None:
 
 
 def qq_plot() -> None:
-    """Create a Q-Q (quantile-quantile) plot.
+    """
+    Create a Q-Q (quantile-quantile) plot.
 
     Notes
     ----------

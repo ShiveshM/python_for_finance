@@ -24,23 +24,19 @@ def incremental() -> None:
     def incremental_search(func: Callable[[float], float],
                            bounds: Tuple[int],
                            increment: float) -> (float, int):
-        """Incremental search algorithm.
+        """
+        Incremental search algorithm.
 
         Parameters
         ----------
-        func : Callable[[float], float]
-            Function to evaluate
-        bounds : Tuple[int]
-            Lower and upper bounds
-        increment : float
-            Incremental value in searching
+        func : Function to evaluate.
+        bounds : Lower and upper bounds.
+        increment : Incremental value in searching.
 
         Returns
         ----------
-        root : float
-            Value at the root
-        n_iter : int
-            Number of interations used
+        root : Value at the root.
+        n_iter : Number of interations used.
 
         """
         low, high = bounds
@@ -78,16 +74,18 @@ def incremental() -> None:
 
 
 def bisection() -> None:
-    """Bisection method root-finding algorithm.
+    """
+    Bisection method root-finding algorithm.
 
     Notes
     ----------
-    Suppose we know two points of an interval a and b, and that f(a) <0 and
-    f(b) > 0 lie along a continuos function. Taking the midpoint of this
-    interval as c, where c = (a + b) / 2; the bisection method then evaluates
-    this value as f(c). In the next evaluation, c is replaced as either a or b
-    accordingly. With the new interval shortened, the bisection method repeats
-    with the same evaluation to determine the next value of c.
+    Suppose we know two points of an interval `a` and `b`, and that
+    ``f(a) < 0`` and ``f(b) > 0`` lie along a continuos function. Taking the
+    midpoint of this interval as `c`, where ``c = (a + b) / 2``; the bisection
+    method then evaluates this value as ``f(c)``. In the next evaluation, `c`
+    is replaced as either `a` or `b` accordingly. With the new interval
+    shortened, the bisection method repeats with the same evaluation to
+    determine the next value of `c`.
 
     The biggest advantage of this method is that it is guaranteed to converge
     to an approximation of the root. Also to note is that this method does not
@@ -101,25 +99,22 @@ def bisection() -> None:
                          bounds: Tuple[int],
                          tol: float = 1E-5,
                          max_iter: int = 1E6) -> (float, int):
-        """Bisection method algorithm.
+        """
+        Bisection method algorithm.
 
         Parameters
         ----------
-        func : Callable[[float], float]
-            Function to evaluate
-        bounds : Tuple[int]
-            Lower and upper bounds
-        tol : float, optional
-            Tolerance to compute to (the default is 1E-5)
-        max_iter : int, optional
-            Maximum number of iterations (the default is 1E6)
+        func : Function to evaluate.
+        bounds : Lower and upper bounds.
+        tol : optional
+            Tolerance to compute to.
+        max_iter : optional
+            Maximum number of iterations.
 
         Returns
         ----------
-        root : float
-            Value at the root
-        n_iter : int
-            Number of interations used
+        root : Value at the root
+        n_iter : Number of interations used
 
         """
         a, b = bounds
@@ -150,25 +145,26 @@ def bisection() -> None:
 
 
 def newtons() -> None:
-    """Newton-Raphson method root-finding algorithm.
+    """
+    Newton-Raphson method root-finding algorithm.
 
     Notes
     ----------
     This method uses an iterative procedure to solve for the root using
     information about the derivative of a function. The approximation to the
-    next value of x is given as:
+    next value of `x` is given as:
 
-                        x' = x - f(x)/f'(x)
+    .. math: x' = x - f(x)/f'(x)
 
-    Here, the tangent line intersects the x axis at x', which produces y = 0.
-    This also represents a first-order Taylor expansion about x', such that the
-    new point solves f(x' + Δx) = 0.
+    Here, the tangent line intersects the `x` axis at `x'`, which produces
+    `y = 0`. This also represents a first-order Taylor expansion about `x'`,
+    such that the new point solves :math:`f(x' + \delta x) = 0`.
 
-    An initial guess value is required to compute the values of f(x) and f'(x).
-    The rate of convergence is quadratic, which is considered to be extremely
-    fast. A drawback is that it does not gaurantee global convergence to the
-    solution - e.g. when the solution contains more than one root or if the
-    algorithm arrives at a local extremum. It is required that the input
+    An initial guess value is required to compute the values of `f(x)` and
+    `f'(x)`.  The rate of convergence is quadratic, which is considered to be
+    extremely fast. A drawback is that it does not gaurantee global convergence
+    to the solution - e.g. when the solution contains more than one root or if
+    the algorithm arrives at a local extremum. It is required that the input
     function be differentiable.
 
     """
@@ -177,27 +173,23 @@ def newtons() -> None:
                        seed: float,
                        tol: float = 1E-5,
                        max_iter: int = 1E6) -> (float, int):
-        """Newton's method algorithm.
+        """
+        Newton's method algorithm.
 
         Parameters
         ----------
-        func : Callable[[float], float]
-            Function to evaluate
-        df : Callable[[float], float]
-            Derivative of the function to evaluate
-        seed : float
-            Initial guess
-        tol : float, optional
-            Tolerance to compute to (the default is 1E-5)
-        max_iter : int, optional
-            Maximum number of iterations (the default is 1E6)
+        func : Function to evaluate.
+        df : Derivative of the function to evaluate.
+        seed : Initial guess.
+        tol : optional
+            Tolerance to compute to.
+        max_iter : optional
+            Maximum number of iterations.
 
         Returns
         ----------
-        root : float
-            Value at the root
-        n_iter : int
-            Number of interations used
+        root : Value at the root
+        n_iter : Number of interations used
 
         """
         x = seed
@@ -227,7 +219,8 @@ def newtons() -> None:
 
 
 def secant() -> None:
-    """Secant method root-finding algorithm.
+    """
+    Secant method root-finding algorithm.
 
     Notes
     ----------
@@ -235,19 +228,19 @@ def secant() -> None:
     that intersects two points of a curve. By successively drawing such secant
     lines, the root of the function can be approximated.
 
-    An initial guess of the two x axis values, a and b, is required. A secant
-    line, y, is drawn from f(b) to f(a) and intersects at the point c on the x
-    axis such that:
+    An initial guess of the two `x` axis values, `a` and `b`, is required. A
+    secant line, `y`, is drawn from `f(b)` to `f(a)` and intersects at the
+    point `c` on the `x` axis such that:
 
-                y = (c - b) * (f(b) - f(a)) / (b - a) + f(b)
+    .. math: y = (c - b) * (f(b) - f(a)) / (b - a) + f(b)
 
     Therefore,
 
-                   c = b - f(b) * (b - a) / (f(b) - f(a))
+    .. math: c = b - f(b) * (b - a) / (f(b) - f(a))
 
-    On the next iteration, a and b will take on the values b and c,
+    On the next iteration, `a` and `b` will take on the values `b` and `c`,
     respectively. This method then repeats itself, terminating when the maximum
-    number of iterations is reached, or the difference between b and c has
+    number of iterations is reached, or the difference between `b` and `c` has
     reached a specified tolerance level.
 
     The rate of convergence is considered to be superlinear. It converges much
@@ -258,25 +251,22 @@ def secant() -> None:
                       bounds: Tuple[int],
                       tol: float = 1E-5,
                       max_iter: int = 1E6) -> (float, int):
-        """Secant method algorithm.
+        """
+        Secant method algorithm.
 
         Parameters
         ----------
-        func : Callable[[float], float]
-            Function to evaluate
-        bounds : Tuple[int]
-            Lower and upper bounds
-        tol : float, optional
-            Tolerance to compute to (the default is 1E-5)
-        max_iter : int, optional
-            Maximum number of iterations (the default is 1E6)
+        func : Function to evaluate.
+        bounds : Lower and upper bounds.
+        tol : optional
+            Tolerance to compute to.
+        max_iter : optional
+            Maximum number of iterations.
 
         Returns
         ----------
-        root : float
-            Value at the root
-        n_iter : int
-            Number of interations used
+        root : Value at the root
+        n_iter : Number of interations used
 
         """
         a, b = bounds
@@ -305,7 +295,8 @@ def secant() -> None:
 
 
 def scipy() -> None:
-    """Scipy root-finding scalar functions [1]_.
+    """
+    Scipy root-finding scalar functions [1]_.
 
     References
     ----------
@@ -340,7 +331,8 @@ def scipy() -> None:
 
 
 def scipy_general() -> None:
-    """Scipy general multidimensional non-linear solvers [1]_.
+    """
+    Scipy general multidimensional non-linear solvers [1]_.
 
     References
     ----------

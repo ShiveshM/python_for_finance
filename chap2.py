@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
-"""Utility functions from Chapter 2 of Mastering Python for Finance.
+"""
+Utility functions from Chapter 2 of Mastering Python for Finance.
 
 This module wraps into standalone functions the contents of Chapter 2 in James
 Ma Weiming's "Mastering Python for Finance", published by Packt.
@@ -15,22 +16,24 @@ STR_FMT = '{0}\n{1}\n'
 
 
 def capm() -> None:
-    """The Capital Asset Pricing Model (CAPM).
+    """
+    The Capital Asset Pricing Model (CAPM).
 
     Notes
     ----------
     The CAPM relates the risk premium of an asset and the market risk premium
     through the asset's beta:
 
-                   E[R_i] - R_f = β(E[R_m] - R_f)
+    .. math:: E[R_i] - R_f = \beta(E[R_m] - R_f)
 
     where
-        - R_f is the risk-free return e.g. interest rate on gov bonds
-        - E[R_i] is the expected returns on the asset
-        - E[R_m] is the expected return of the market
-        - β is the sensitivity of the asset to the general market, extracted as
+    * :math:`R_f`    : risk-free return e.g. interest rate on gov bonds
+    * :math:`E[R_i]` : expected returns on the asset
+    * :math:`E[R_m]` : expected return of the market
+    * :math:`\beta` : sensitivity of the asset to the general market,
+      extracted as
 
-                    β = Cov[R_i, R_m] / Var[R_m]
+    .. math:: \beta = {\rm Cov}[R_i, R_m] / {\rm Var}[R_m]
 
     For a portfolio of assets, we can construct combinations or weights of
     risky securities that produce the lowest portfolio risk for every level of
@@ -80,7 +83,8 @@ def capm() -> None:
 
 
 def apt() -> None:
-    """The Arbitrage Pricing Theory model (APT)
+    """
+    The Arbitrage Pricing Theory model (APT)
 
     Notes
     ----------
@@ -90,18 +94,22 @@ def apt() -> None:
     dividends, where sensitivity to changes in each factor is represented by a
     factor-specific beta coefficient.
 
-             R_i = α_i + β_i1 f_1 + β_i2 f_2 + ... + β_ij f_j + ϵ_i
+    .. math::
+       R_i = \alpha_i + \beta_{i1} f_1 + \beta_{i2} f_2 + \dots +
+             \beta_{ij} f_j + \epsilon_i
 
-          E[R_i] = R_f + β_i1 F_1 + β_i2 F_2 + ... + β_ij F_j
+    .. math::
+       E[R_i] = R_f + \beta_{i1} F_1 + \beta_{i2} F_2 + \dots +
+                \beta_{ij} F_j
 
     where
-        - R_i is the returns on asset i
-        - α_i is a constant for asset i
-        - β_ij is the sensitivity of the ith asset to factor j
-        - f_i is a systematic factor
-        - E[R_i] is the expected returns on asset i
-        - R_f is the risk-free return e.g. interest rate on gov bonds
-        - F_i is the risk premium of the factor
+    * :math:`R_i`         : returns on asset i
+    * :math:`\alpha_i`   : constant for asset i
+    * :math:`\beta_{ij}` : sensitivity of the ith asset to factor j
+    * :math:`f_i`         : systematic factor
+    * :math:`E[R_i]`      : expected returns on asset i
+    * :math:`R_f`         : risk-free return e.g. interest rate on gov bonds
+    * :math:`F_i`         : risk premium of the factor
 
     Here we implement an APT model with seven factors using multilinear
     least squares regression techniques using the statsmodels package.
@@ -128,28 +136,31 @@ def apt() -> None:
 
 
 def lin_programming() -> None:
-    """Use linear programming to determine portfolio allocation.
+    """
+    Use linear programming to determine portfolio allocation.
 
     Notes
     ----------
-    Suppose we want to invest in two securities X and Y in such a way that we
-    have three units of X for every two units of Y, such that the total number
-    of units is maximised. However there are certain constraints:
-        - For every two units of X and one unit of Y invested, the total volume
-          must not exceed 100.
-        - For every unit of the securities X and Y invested, the total volume
-          must not exceed 80.
-        - The total volume allowed to invest in the security X must not exceed
-          40.
+    Suppose we want to invest in two securities `X` and `Y` in such a way that
+    we have three units of `X` for every two units of `Y`, such that the total
+    number of units is maximised. However there are certain constraints:
+        - For every two units of `X` and one unit of `Y` invested, the total
+          volume must not exceed 100.
+        - For every unit of the securities `X` and `Y` invested, the total
+          volume must not exceed 80.
+        - The total volume allowed to invest in the security `X` must not
+          exceed 40.
         - Short-selling is not allowed for securities.
 
     Therefore, mathematically we have:
-        Maximise f(x, y) = 3x + 2y
+
+    .. math: {\rm Maximise } f(x, y) = 3x + 2y
+
     with
-        - 2x + y <= 100
-        - x + y <= 80
-        - x <= 40
-        - x, y >= 0
+    * :math:`2x + y \leq 100`
+    * :math:`x + y \leq 80`
+    * :math:`x \leq 40`
+    * :math:`x, y \geq 0`
 
     """
     import pulp
@@ -176,19 +187,20 @@ def lin_programming() -> None:
 
 
 def int_programming() -> None:
-    """Use linear integer programming to determine portfolio allocation.
+    """
+    Use linear integer programming to determine portfolio allocation.
 
     Notes
     ----------
     Suppose we must go for 150 contracts in a particular OTC exotic security
     from three dealers.
-    - Dealer X quoted $500 per contract plus handling fees of $4,000,
+    * Dealer `X` quoted $500 per contract plus handling fees of $4,000,
       regardless of the number of contracts sold.
-    - Dealer Y charges $450 per contract plus a transaction fee of $2,000.
-    - Dealer Z charges $450 per contract plus a fee of $6,000.
-    - Dealer X will sell at most 100 contracts, dealer Y at most 90, and dealer
-      Z at most 70.
-    - The minimum transaction volume from any dealer is 30 contracts if any are
+    * Dealer `Y` charges $450 per contract plus a transaction fee of $2,000.
+    * Dealer `Z` charges $450 per contract plus a fee of $6,000.
+    * Dealer `X` will sell at most 100 contracts, dealer Y at most 90, and
+      dealer `Z` at most 70.
+    * The minimum transaction volume from any dealer is 30 contracts if any are
       transacted with that dealer.
     How should we minimise the cost of purchasing 150 contracts?
 
@@ -255,7 +267,8 @@ def int_programming() -> None:
 
 
 def linalg() -> None:
-    """Solving linear equations using matrices.
+    """
+    Solving linear equations using matrices.
 
     Notes
     ----------
@@ -263,25 +276,28 @@ def linalg() -> None:
     deterministic, we can represent the problem as matrices and apply matrix
     algebra.
 
-    Suppose we want to build a portfolio that consists of three securities: a,
-    b, and c. We have the following constraints:
-    - It must consists of six units of a long position in security a.
-    - With every two units of security a, one unit of security b, and one unit
-      of security c must be invested, the net position must be four long units.
-    - With every one unit of security a, three units of security b, and two
-      units of security c invested, the net position must be five long units.
+    Suppose we want to build a portfolio that consists of three securities:
+    `a`, `b`, and `c`. We have the following constraints:
+    - It must consists of six units of `a` long position in security `a`.
+    - With every two units of security `a`, one unit of security `b`, and one
+      unit of security `c` must be invested, the net position must be four long
+      units.
+    - With every one unit of security `a`, three units of security `b`, and two
+      units of security `c` invested, the net position must be five long units.
 
-    This can be written in matrix form Ax = B with:
+    This can be written in matrix form :math:`A\mathbf{x} = \mathbf{B}` with:
 
+    ``
         [ 2 1 1 ]       [ a ]       [ 4 ]
     A = [ 1 3 2 ] , x = [ b ] , B = [ 5 ]
         [ 1 0 0 ]       [ c ]       [ 6 ]
+    ``
 
-    As the size of A increases, it becomes computationally expensive to compute
-    the matrix inversion of A. One may consider other methods such as Cholesky
-    decomposition, LU decomposition, QR decomposition, the Jacobi method, or
-    the Gauss-Seidel method to break down A into simpler matrices for
-    factorisation.
+    As the size of `A` increases, it becomes computationally expensive to
+    compute the matrix inversion of `A`. One may consider other methods such as
+    Cholesky decomposition, LU decomposition, QR decomposition, the Jacobi
+    method, or the Gauss-Seidel method to break down `A` into simpler matrices
+    for factorisation.
 
     """
     import numpy as np
@@ -302,18 +318,21 @@ def linalg() -> None:
 
 
 def lu_decomp() -> None:
-    """The LU (lower-upper) decomposition.
+    """
+    The LU (lower-upper) decomposition.
 
     Notes
     ----------
-    LU decomposition decomposes a matrix A into a lower triangular matrix, L,
-    and an upper triangular matrix, U.
+    LU decomposition decomposes a matrix `A` into a lower triangular matrix,
+    `L`, and an upper triangular matrix, `U`.
 
-                             A = LU
+    .. math: A = LU
 
+    ``
     [ a b c ]   [ l_11 0    0   ]   [ u_11 u_12 u_13 ]
     [ d e f ] = [ l_21 l_22 0   ] × [ 0    u_22 u_23 ]
     [ g h i ]   [ l_31 l_32 l_33]   [ 0    0    u_33 ]
+    ``
 
     This works for any square matrix (Cholesky decomposition works only for
     symmetric and positive definite matrices).
@@ -351,16 +370,17 @@ def lu_decomp() -> None:
 
 
 def cholesky() -> None:
-    """The Cholesky decomposition.
+    """
+    The Cholesky decomposition.
 
     Notes
     ----------
     The matrix being decomposed must be Hermitian and positive definite.
 
-                            A = L L^T*
+    .. math: A = L L^\dagger
 
     where L is the lower triangular matrix with real and positive numbers on
-    the diagonals, and L^T* is the conjugate transpose of L.
+    the diagonals, and :math:`L^\dagger` is the conjugate transpose of `L`.
 
     This method can be significantly faster and use less memory than LU
     decomposition, by exploting the property of symmetric matrices.
@@ -395,22 +415,24 @@ def cholesky() -> None:
 
 
 def qr_decomp() -> None:
-    """The QR decomposition.
+    """
+    The QR decomposition.
 
     Notes
     ----------
-    The matrix being decomposed is broken down into an orthogonal matrix, Q,
-    and an upper triangular matrix, R:
+    The matrix being decomposed is broken down into an orthogonal matrix, `Q`,
+    and an upper triangular matrix, `R`:
 
-                            A = Q R
+    .. math: A = Q R
 
-    An orthogonal matrix Q:
-    - Is square
-    - Q Q^T = Q^T Q = I
-    - Q^T = Q^{-1}
+    An orthogonal matrix `Q`:
+    * Is square
+    * :math:`Q Q^T = Q^T Q = I`
+    * :math:`Q^T = Q^{-1}`
 
-    To solve for Ax = B, Rx = Q^{-1} B = Q^T B. This is commonly used to solve
-    least squares problems.
+    To solve for :math:`A\mathbf{x} = \mathbf{B}`, :math:`R\mathbf{x} = Q^{-1}
+    \mathbf{B} = Q^T \mathbf{B}`. This is commonly used to solve least squares
+    problems.
 
     """
     import numpy as np
@@ -440,7 +462,8 @@ def qr_decomp() -> None:
 
 
 def jacobi() -> None:
-    """The Jacobi method.
+    """
+    The Jacobi method.
 
     Notes
     ----------
@@ -449,29 +472,50 @@ def jacobi() -> None:
 
     The matrix is decomposed into two matrices of the same size such that
 
-                            A = D + R
+    .. math: A = D + R
 
-    where D consists of only the diagonal components of A, and the other matrix
-    R consists of the remaining components. The solution is obtained
+    where `D` consists of only the diagonal components of `A`, and the other
+    matrix `R` consists of the remaining components. The solution is obtained
     iteratively,
-    - Ax = B
-    - (D + R)x = B
-    - Dx = B - Rx
-    - x_{n+1} = D^{-1}(B - Rx_n)
+    * :math:`A\mathbf{x} = \mathbf{B}`
+    * :math:`(D + R)\mathbf{x} = \mathbf{B}`
+    * :math:`D\mathbf{x} = \mathbf{B} - R\mathbf{x}`
+    * :math:`\mathbf{x}_{n+1} = D^{-1}(\mathbf{B} - R\mathbf{x}_n)`
 
-    If the A matrix is strictly irreducibly diagonally dominant, this method is
-    guaranteed to converge. A strictly irreducibly diagonally dominant matrix
-    is one where the absolute diagonal in every row is greater than the sum of
-    the absolute values of other terms.
+    If the `A` matrix is strictly irreducibly diagonally dominant, this method
+    is guaranteed to converge. `A` strictly irreducibly diagonally dominant
+    matrix is one where the absolute diagonal in every row is greater than the
+    sum of the absolute values of other terms.
 
     """
     import numpy as np
 
-    def jac(A, B, x=None, max_iter=int(1E6), tol=1E-10):
-        """Solve for Ax = B using the Jacobi method."""
+    def jac(A, B, x_seed=None, tol: float = 1E-10, max_iter: int = int(1E6)):
+        """
+        Solve for `A x = B` using the Jacobi method.
+
+        Parameters
+        ----------
+        A : (N, N) array_like
+            Coefficient matrix.
+        B : (N) array_like
+            Ordinate or "dependent variable" values.
+        x_seed : (N) array_like, optional
+            Initial guess of solution.
+        tol : optional
+            Tolerance to compute to.
+        max_iter : optional
+            Maximum number of iterations.
+
+        Returns
+        ----------
+        x : (N) ndarray
+            Solution to the system `A x = B`.  Returned shape is identical to
+            `B`.
+
+        """
         # Create initial guess if needed
-        if x is None:
-            x = np.zeros_like(B)
+        x = np.zeros_like(B) if x_seed is None else x_seed
 
         # Calculate D and R
         D = np.diag(A)
@@ -502,24 +546,25 @@ def jacobi() -> None:
 
 
 def gauss_seidel() -> None:
-    """The Gauss-Seidel method.
+    """
+    The Gauss-Seidel method.
 
     Notes
     ----------
     This method solves a system of linear equations iteratively. Here the
-    matrix is decomposed into a lower triangular matrix, L, and an upper
-    triangular matrix, U.
+    matrix is decomposed into a lower triangular matrix, `L`, and an upper
+    triangular matrix, `U`.
 
-                            A = L + U
+    .. math: A = L + U
 
     The solution is obtained iteratively,
-    - Ax = B
-    - (L + U)x = B
-    - Lx = B - Ux
-    - x_{n+1} = L^{-1}(B - Ux_n)
+    * :math:`A\mathbf{x} = \mathbf{B}`
+    * :math:`(L + U)\mathbf{x} = \mathbf{B}`
+    * :math:`L\mathbf{x} = \mathbf{B} - U\mathbf{x}`
+    * :math:`\mathbf{x}_{n+1} = L^{-1}(\mathbf{B} - U\mathbf{x}_n)`
 
-    An advantage over the Jacobi method is that the elements of x_n can be
-    overwritten in each iteration.
+    An advantage over the Jacobi method is that the elements of
+    :math:`\mathbf{x}_n` can be overwritten in each iteration.
 
     """
     import numpy as np

@@ -19,18 +19,20 @@ STR_FMT = '{0}\n{1}\n'
 
 
 def european_option() -> None:
-    """Pricing European options using a binomial tree.
+    """
+    Pricing European options using a binomial tree.
 
     Notes
     ----------
     Consider a two-step binomial tree. A non-dividend paying stock starts at
     $50, and, in each of the two time steps, the stock may go up by 20% or go
     down by 20%. Suppose the risk-free rate is 5% per annum and that the time
-    to maturity, T, is 2 years. Find the value of a European put option with a
-    strike K of $52.
+    to maturity, `T`, is 2 years. Find the value of a European put option with
+    a strike `K` of $52.
 
     Using a binomial tree, the nodes will have stock price values:
 
+    ``
                             S_uu = $72, p_uu = $0
                           /
                 S_u = $60
@@ -40,8 +42,9 @@ def european_option() -> None:
                 S_u = $60
                           \
                             S_dd = $32, p_dd = $52 - $32 = $20
+    ``
 
-    with final payoff values p_uu, p_ud, and p_dd. We then traverse the
+    with final payoff values `p_uu`, `p_ud`, and `p_dd`. We then traverse the
     binomial tree backward to the current time, and after discounting the
     risk-free rate, we will obtain the present value of the option.
 
@@ -50,21 +53,21 @@ def european_option() -> None:
     possibilities, would be equal to the continuously compounded risk-free rate
     expected in the next time step, as follows
 
-                        e^{rt} = qu + (1 - q)d
+    .. math: e^{rt} = qu + (1 - q)d
 
     The risk-neutral probability q of investing in the stock is then
 
-                      q = (e^{rt} - d) / (u - d)
+    .. math: q = (e^{rt} - d) / (u - d)
 
     Note that for forward contracts, in the risk-neutral sense, the expected
     growth rate from holding a forward contract is zero, and so the
     risk-neutral probability can be written as
 
-                         q = (1 - d) / (u - d)
+    .. math: q = (1 - d) / (u - d)
 
     The present value of the put option can be priced as:
 
-          p_t = e^{-r(T - t)}[ 0(q)^2 + 2(48)(q)(1 - q) + 20(1 - q)^2 ]
+    .. math: p_t = e^{-r(T - t)}[ 0(q)^2 + 2(48)(q)(1 - q) + 20(1 - q)^2 ]
 
     """
     r = 0.05
@@ -82,6 +85,24 @@ def european_option() -> None:
     print(STR_FMT.format('p0', '${:.2f}'.format(p0)))
     print(STR_FMT.format('pu', '${:.2f}'.format(pu)))
     print(STR_FMT.format('pd', '${:.2f}'.format(pd)))
+
+
+class StockOption():
+    """Stores common attributes of a stock option."""
+
+    def __init__():
+        """Initialise the stock option base class."""
+        pass
+
+    @property
+    def dt(self):
+        """Single time step, in years."""
+        pass
+
+    @property
+    def df(self):
+        """The discount factor."""
+        pass
 
 
 def main() -> None:
