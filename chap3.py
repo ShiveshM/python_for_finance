@@ -39,6 +39,11 @@ def incremental() -> None:
         root : Value at the root.
         n_iter : Number of interations used.
 
+        Raises
+        ----------
+        AssertionError
+            When no root can be found within `bounds`.
+
         """
         low, high = bounds
 
@@ -53,6 +58,8 @@ def incremental() -> None:
         while np.sign(f_x) == np.sign(f_y):
             if x >= y:
                 return x - increment, n_iter
+            if x + increment > high:
+                raise AssertionError('No root has been found!')
 
             x = y
             f_x = f_y
@@ -62,10 +69,9 @@ def incremental() -> None:
 
         if f_x == 0:
             return x, n_iter
-        elif f_y == 0:
+        if f_y == 0:
             return y, n_iter
-        else:
-            return (x + y)/2, n_iter
+        return (x + y)/2, n_iter
 
     # Find the root of a test function
     y = lambda x: x**3 + 2 * x**2 - 5
@@ -158,7 +164,7 @@ def newtons() -> None:
 
     Here, the tangent line intersects the x axis at x', which produces
     y = 0. This also represents a first-order Taylor expansion about x',
-    such that the new point solves f(x' + \delta x) = 0.
+    such that the new point solves f(x' + Δx) = 0.
 
     An initial guess value is required to compute the values of f(x) and f'(x).
     The rate of convergence is quadratic, which is considered to be extremely

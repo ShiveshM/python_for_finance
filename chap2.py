@@ -67,15 +67,15 @@ def capm() -> None:
     slope, intercept, rvalue, pvalue, stderr = \
         stats.linregress(stock_returns, market_returns)
     alpha = intercept
-    beta  = slope
-    print(STR_FMT.format('alpha',  alpha))
-    print(STR_FMT.format('beta',   beta))
+    beta = slope
+    print(STR_FMT.format('alpha', alpha))
+    print(STR_FMT.format('beta', beta))
     print(STR_FMT.format('rvalue', rvalue))
     print(STR_FMT.format('pvalue', pvalue))
     print(STR_FMT.format('stderr', stderr))
 
     # For a risk-free rate of 5% and a market risk premium of 8.5%
-    R_f  = 5
+    R_f = 5
     R_am = 8.5 # R_am = E[R_m] - R_f
     E_R_i = R_f + (beta * R_am)
     print(STR_FMT.format('Expected return of asset', '{:.1f}%'.format(E_R_i)))
@@ -83,7 +83,7 @@ def capm() -> None:
 
 def apt() -> None:
     """
-    The Arbitrage Pricing Theory model (APT)
+    The Arbitrage Pricing Theory model (APT).
 
     Notes
     ----------
@@ -95,7 +95,7 @@ def apt() -> None:
 
           R_i = α_i + β_i1 f_1 + β_i2 f_2 + ... + β_ij f_j + ϵ_i
 
-           E[R_i] = R_f + β_i1 F_1 + β_i2 F_2 + \dots + β_ij F_j
+           E[R_i] = R_f + β_i1 F_1 + β_i2 F_2 + ... + β_ij F_j
 
     where
     - R_i    : returns on asset i.
@@ -221,8 +221,8 @@ def int_programming() -> None:
     #                            + {fixed_costs}_i)
     try:
         problem = pulp.LpProblem('Cost_minimisation_problem', pulp.LpMinimize)
-        problem += sum([is_orders [i] * (variable_costs[i] * quantities[i] +
-                                         fixed_costs[i])
+        problem += sum([is_orders[i] * (variable_costs[i] * quantities[i] +
+                                        fixed_costs[i])
                         for i in dealers]), 'Minimise portfolio cost'
         problem += sum([quantities[i] for i in dealers]) == 150, \
             'Total contracts required'
@@ -233,8 +233,8 @@ def int_programming() -> None:
     except TypeError as exc:
         print(exc)
         print('As it turns out, we are trying to perform multiplication on '
-        'two unknown variables, which led us to perform nonlinear '
-        'programming!')
+              'two unknown variables, which led us to perform nonlinear '
+              'programming!')
 
     # Define the problem
     # Another method is to reformulate the problem such that all unknown
@@ -306,7 +306,7 @@ def linalg() -> None:
 
     # Solve
     x = np.linalg.solve(A, B)
-    print(STR_FMT.format('x',  x))
+    print(STR_FMT.format('x', x))
 
 
 def lu_decomp() -> None:

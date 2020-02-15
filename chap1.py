@@ -56,7 +56,7 @@ def plot_time_series() -> None:
     top = plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=4)
     top.plot(prices.index, prices, label='Last')
     plt.title('ABN Last Price from {low} - {high}'.format(
-            low=prices.index[0].year, high=prices.index[-1].year))
+        low=prices.index[0].year, high=prices.index[-1].year))
     plt.legend(loc=2)
 
     # The bottom plot consisting of daily trading volume
@@ -104,7 +104,7 @@ def plot_candlestick() -> None:
 
     # Save figure
     plt.subplots_adjust(hspace=0.75)
-    plt.savefig(IMGDIR+'candlestick.png', bbox_inches='tight')
+    fig.savefig(IMGDIR+'candlestick.png', bbox_inches='tight')
 
 
 def time_series_analytics() -> None:
@@ -236,7 +236,7 @@ def sma() -> None:
 
     # Fill in missing values on a daily basis
     df_filled = df.asfreq('D', method='ffill')
-    df_last = df['Last']
+    df_last = df_filled['Last']
 
     # Calculate the SMA for a 5-day and 30-day window
     series_short = df_last.rolling(window=5, min_periods=5).mean()
@@ -261,7 +261,7 @@ def ema() -> None:
 
     # Fill in missing values on a daily basis
     df_filled = df.asfreq('D', method='ffill')
-    df_last = df['Last']
+    df_last = df_filled['Last']
 
     # Calculate the EMA with a decay spanning 5-days and 30-days
     # The ewm() method provides exponential weighted functions
