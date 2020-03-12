@@ -24,7 +24,8 @@ def incremental() -> None:
 
     def incremental_search(func: Callable[[float], float],
                            bounds: Tuple[int],
-                           increment: float) -> (float, int):
+                           tol: float = 1E-7,
+                           max_iter : float = 1E6) -> (float, int):
         """
         Incremental search algorithm.
 
@@ -32,7 +33,10 @@ def incremental() -> None:
         ----------
         func : Function to evaluate.
         bounds : Lower and upper bounds.
-        increment : Incremental value in searching.
+        tol : optional
+            Tolerance to compute to.
+        max_iter : optional
+            Maximum number of iterations.
 
         Returns
         ----------
@@ -49,33 +53,27 @@ def incremental() -> None:
 
         # Start from lower boundary
         x = low
-        y = x + increment
+        y = x + tol / 2
         f_x = func(low)
         f_y = func(y)
 
         # Increment until a sign change occurs
         n_iter = 0
         while np.sign(f_x) == np.sign(f_y):
-            if x >= y:
-                return x - increment, n_iter
-            if x + increment > high:
-                raise AssertionError('No root has been found!')
-
             x = y
             f_x = f_y
-            y = x + increment
+            y = x + tol / 2
             f_y = func(y)
             n_iter += 1
 
-        if f_x == 0:
-            return x, n_iter
-        if f_y == 0:
-            return y, n_iter
-        return (x + y)/2, n_iter
+            if y > high or n_iter > max_iter:
+                x, n_iter
+
+        return (x + y) / 2, n_iter
 
     # Find the root of a test function
     y = lambda x: x**3 + 2 * x**2 - 5
-    root, iterations = incremental_search(y, (-5, 5), 0.001)
+    root, iterations = incremental_search(y, (-5, 5))
     print(STR_FMT.format('root', root))
     print(STR_FMT.format('iterations', iterations))
 
@@ -103,7 +101,7 @@ def bisection() -> None:
     """
     def bisection_method(func: Callable[[float], float],
                          bounds: Tuple[int],
-                         tol: float = 1E-5,
+                         tol: float = 1E-6,
                          max_iter: int = 1E6) -> (float, int):
         """
         Bisection method algorithm.
@@ -177,7 +175,7 @@ def newtons() -> None:
     def newtons_method(func: Callable[[float], float],
                        df: Callable[[float], float],
                        seed: float,
-                       tol: float = 1E-5,
+                       tol: float = 1E-6,
                        max_iter: int = 1E6) -> (float, int):
         """
         Newton's method algorithm.
@@ -255,7 +253,7 @@ def secant() -> None:
     """
     def secant_method(func: Callable[[float], float],
                       bounds: Tuple[int],
-                      tol: float = 1E-5,
+                      tol: float = 1E-6,
                       max_iter: int = 1E6) -> (float, int):
         """
         Secant method algorithm.
@@ -319,7 +317,7 @@ def scipy() -> None:
 
     # Call method: bisect(f, a, b[, args, xtol, rtol, maxiter, ...])
     print(STR_FMT.format('Bisection Method:',
-                         optimize.bisect(y, -5, 5, xtol=1E-5)))
+                         optimize.bisect(y, -5, 5, xtol=1E-6)))
 
     # Call method: newton(func, x0[, fprime, args, tol, ...])
     print(STR_FMT.format('Newton\'s Method:',

@@ -11,7 +11,7 @@ Ma Weiming's "Mastering Python for Finance", published by Packt.
 import math
 
 
-__all__ = ['european_option']
+__all__ = ['european_option', 'american_option']
 
 IMGDIR = './img/chap4/'
 """Path to store images."""
@@ -39,7 +39,7 @@ def european_option() -> None:
               /           \
     S_0 = $50               S_ud = S_du = $48, p_ud = p_du = $52 - $48 = $4
               \           /
-                S_u = $60
+                S_d = $40
                           \
                             S_dd = $32, p_dd = $52 - $32 = $20
 
@@ -52,7 +52,7 @@ def european_option() -> None:
     possibilities, would be equal to the continuously compounded risk-free rate
     expected in the next time step, as follows
 
-                            e^{rt} = qu + (1 - q)d
+                          e^{rt} = q * u + (1 - q)d
 
     The risk-neutral probability q of investing in the stock is then
 
@@ -69,15 +69,22 @@ def european_option() -> None:
           p_t = e^{-r(T - t)}[ 0(q)^2 + 2(48)(q)(1 - q) + 20(1 - q)^2 ]
 
     """
-    r = 0.05
+    from utils.option import BinomialEuropeanOption
+
+    S = 50
+    K = 52
     T = 2
-    t = T / 2
+    r = 0.05
+    N = 2
     u = 1.2
     d = 0.8
+    t = T / N
 
+    # Calculate the risk-free probability
     q = (math.exp(r * t) - d) / (u - d)
     print(STR_FMT.format('risk-free probability, q', '{:.2f}'.format(q)))
 
+    # Calculate the value of the option at each node
     p0 = math.exp(-r * T) * ((2 * 4 * q * (1 - q)) + (20 * (1 - q)**2))
     pu = math.exp(-r * t) * (4 * (1 - q))
     pd = math.exp(-r * t) * ((4 * q) + (20 * (1 - q)))
@@ -85,23 +92,39 @@ def european_option() -> None:
     print(STR_FMT.format('pu', '${:.2f}'.format(pu)))
     print(STR_FMT.format('pd', '${:.2f}'.format(pd)))
 
+    # Do the same using the BinomialEuropeanOption class
+    eu_option = BinomialEuropeanOption(
+        S, K, T=T, r=r, option_right='Put', N=N, pu=(u - 1), pd=(1 - d)
+    )
+    print(STR_FMT.format('European option put price:',
+                         '${:.2f}'.format(eu_option.price())))
+    print(STR_FMT.format('eu_option', f'{eu_option}'))
 
-class StockOption():
-    """Stores common attributes of a stock option."""
 
-    def __init__():
-        """Initialise the stock option base class."""
-        pass
+def american_option() -> None:
+    """
+    Pricing American options using a binomial tree.
 
-    @property
-    def dt(self):
-        """Single time step, in years."""
-        pass
+    Notes
+    ----------
+    Unlike European options, which can only be exercised at maturity, American
+    options can be exercised at any time during their lifetime.
 
-    @property
-    def df(self):
-        """The discount factor."""
-        pass
+    Since American options can be exercised at any time, this added flexibility
+    compared to European options increases their value in certain
+    circumstances. For an American call option on an underlying asset that does
+    not pay dividends, there might not be an extra value over its European call
+    option counterpart.
+
+    Because of the the time value of money, it costs more to exercise the
+    American call option today before the expiration at the strike price than
+    at a future time with the same strike price. For an in-the-money American
+    call option, exercising the option early loses the benefit of protection
+    against adverse price movement below the strike price, as well as its
+    intrinsic time value. With no entitlement fo dividend payments, there are
+    no incentives to exercise American call options early.
+
+    """
 
 
 def main() -> None:
