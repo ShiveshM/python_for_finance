@@ -11,7 +11,7 @@ Ma Weiming's "Mastering Python for Finance", published by Packt.
 import math
 
 
-__all__ = ['european_option', 'american_option']
+__all__ = ['european_option', 'american_option', 'cox_ross_rubinstein']
 
 IMGDIR = './img/chap4/'
 """Path to store images."""
@@ -66,21 +66,23 @@ def european_option() -> None:
 
     The present value of the put option can be priced as:
 
-          p_t = e^{-r(T - t)}[ 0(q)^2 + 2(48)(q)(1 - q) + 20(1 - q)^2 ]
+          p_t = e^{-r(T - t)}[ 0(q)^2 + 2(4)(q)(1 - q) + 20(1 - q)^2 ]
 
     """
-    from utils.option import BinomialEuropeanOption
+    from utils.option import BinomialTreeOption
 
     S = 50
     K = 52
     T = 2
+    option_right = 'Put'
+    option_type = 'European'
     r = 0.05
     N = 2
     u = 1.2
     d = 0.8
     t = T / N
 
-    # Calculate the risk-free probability
+    # Calculate the risk-neutral probability
     q = (math.exp(r * t) - d) / (u - d)
     print(STR_FMT.format('risk-free probability, q', '{:.2f}'.format(q)))
 
@@ -92,11 +94,12 @@ def european_option() -> None:
     print(STR_FMT.format('pu', '${:.2f}'.format(pu)))
     print(STR_FMT.format('pd', '${:.2f}'.format(pd)))
 
-    # Do the same using the BinomialEuropeanOption class
-    eu_option = BinomialEuropeanOption(
-        S, K, T=T, r=r, option_right='Put', N=N, pu=(u - 1), pd=(1 - d)
+    # Do the same using the BinomialTreeOption class
+    eu_option = BinomialTreeOption(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        N=N, pu=(u - 1), pd=(1 - d),
     )
-    print(STR_FMT.format('European option put price:',
+    print(STR_FMT.format('European option put price at T0:',
                          '${:.2f}'.format(eu_option.price())))
     print(STR_FMT.format('eu_option', f'{eu_option}'))
 
@@ -116,15 +119,89 @@ def american_option() -> None:
     not pay dividends, there might not be an extra value over its European call
     option counterpart.
 
-    Because of the the time value of money, it costs more to exercise the
-    American call option today before the expiration at the strike price than
-    at a future time with the same strike price. For an in-the-money American
-    call option, exercising the option early loses the benefit of protection
-    against adverse price movement below the strike price, as well as its
-    intrinsic time value. With no entitlement fo dividend payments, there are
-    no incentives to exercise American call options early.
+    Because of the time value of money, it costs more to exercise the American
+    call option today before the expiration at the strike price than at a
+    future time with the same strike price. For an in-the-money American call
+    option, exercising the option early loses the benefit of protection against
+    adverse price movement below the strike price, as well as its intrinsic
+    time value. With no entitlement of dividend payments, there are no
+    incentives to exercise American call options early.
 
     """
+    from utils.option import BinomialTreeOption
+
+    S = 50
+    K = 52
+    T = 2
+    option_right = 'Put'
+    option_type = 'European'
+    r = 0.05
+    N = 2
+    u = 1.2
+    d = 0.8
+
+    # Use the BinomialTreeOption class
+    am_option = BinomialTreeOption(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        N=N, pu=(u - 1), pd=(1 - d),
+    )
+
+    # Since the American option has extra flexibility, it is priced higher than
+    # European options in certain circumstances
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(am_option.price())))
+    print(STR_FMT.format('am_option', f'{am_option}'))
+
+
+def cox_ross_rubinstein() -> None:
+    """
+    Pricing options using a binomial tree with underlying stock modelled using
+    the Cox-Ross-Rubinstein model.
+
+    Notes
+    ----------
+    In the above example, we assumed that the underlying stock price would
+    increase by 20% and decrease by 20% in the rejective `u` up state and `d`
+    down state. The Cox-Ross-Rubinstein (CCR) model proposes that, over a short
+    period of time in the risk-neutral world, the binomial model matches the
+    mean and variance of the underlying stock. The volatility of the underlying
+    stock is taken into account as follows:
+
+                                u = e^{ σ √{Δt} }
+                        d = 1 / u = e^{ -σ √{Δt} }
+
+    """
+    from utils.option import BinomialCCROption
+
+    S = 50
+    K = 52
+    option_right = 'Put'
+    option_type = 'American'
+    T = 2
+    r = 0.05
+    vol = 0.3
+    N = 2
+
+    # American option
+    am_option = BinomialCCROption(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N
+    )
+
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(am_option.price())))
+    print(STR_FMT.format('am_option', f'{am_option}'))
+
+    # European option
+    option_type = 'European'
+    eu_option = BinomialCCROption(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N
+    )
+
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(eu_option.price())))
+    print(STR_FMT.format('eu_option', f'{eu_option}'))
 
 
 def main() -> None:

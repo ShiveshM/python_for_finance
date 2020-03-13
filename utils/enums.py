@@ -27,15 +27,3 @@ class OptionType(PPEnum):
     """Type of an option."""
     European = auto()
     American = auto()
-
-
-class UnderlyingType(PPEnum):
-    """Option underlying type."""
-    Stock = auto()
-    Future = auto()
-
-
-class ModelType(PPEnum):
-    """Pricing model the market assumed."""
-    BlackScholes = auto()
-    Bachelier = auto()
