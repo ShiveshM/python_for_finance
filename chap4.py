@@ -12,7 +12,7 @@ import math
 
 
 __all__ = ['european_option', 'american_option', 'cox_ross_rubinstein',
-           'leisen_reimer']
+           'leisen_reimer', 'greeks', 'trinomial_tree', 'binomial_lattice']
 
 IMGDIR = './img/chap4/'
 """Path to store images."""
@@ -166,7 +166,7 @@ def cox_ross_rubinstein() -> None:
     down state. The Cox-Ross-Rubinstein (CCR) model proposes that, over a short
     period of time in the risk-neutral world, the binomial model matches the
     mean and variance of the underlying stock. The volatility of the underlying
-    stock is taken into account as follows:
+    stock is taken into account as follows
 
                                 u = e^{ σ √{Δt} }
                         d = 1 / u = e^{ -σ √{Δt} }
@@ -257,14 +257,195 @@ def leisen_reimer() -> None:
 
 
 def greeks() -> None:
-    """
+    r"""
     The Greeks for free.
 
     Notes
     ----------
+    Here we add an additional layer of nodes around our original two-step tree
+    to make it a four-step tree, which extends backward in time. Even with the
+    additional terminal payoff nodes, all node values will contain the same
+    information as our original two-step tree. Out option value of interest is
+    now located in the middle of the tree at t=0:
+
+    t=-2     t=-1    t=0   t=1   t=2
+                                S_2uu
+                               /
+                          S_1u
+                         /     \
+                    S_0u/d      S_uu
+                   /     \     /
+             S_-1u         S_u
+         u /       \     /     \
+    S_-2              S0        S_ud
+         d \       /     \     /
+             S_-1d         S_d
+                   \     /     \
+                    S_0d/u      S_dd
+                         \     /
+                          S_1d
+                               \
+                                S_2dd
+
+    Notice that at t=0 there exists two additional nodes' worth of information
+    that we can use to compute the delta formula, as follows
+
+                Δ = (v_{up} - v_{down}) / (S_0ud - S_0du)
+
+    The delta formula states that the difference in the option prices in the up
+    and down state is represented as a unit of the difference between the
+    respective stock prices at time t=0.
+
+    Conversely, gamma can be computed as follows
+
+    γ = (((v_{up} - v_0) / (S_0ud - S0)) / ((v_0 - v_{down}) / (S0 - S_0du))) /
+                   (((S0 + S_0ud) / 2) - ((S0 + S_0du) / 2))
+
+    The gamma formula states that the difference of deltas between the option
+    prices in the up node and the down node against the initial node value are
+    computed as a unit of the differences in price of the stock at the
+    respective states.
 
     """
-    pass
+    from utils.option import BinomialLRWithGreeks
+
+    S = 50
+    K = 52
+    option_right = 'Put'
+    option_type = 'European'
+    T = 2
+    r = 0.05
+    vol = 0.3
+    N = 300
+
+    # European option
+    option = BinomialLRWithGreeks(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N
+    )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         f'{option.price()}'))
+
+    # European option
+    option.option_right = 'Call'
+    print(STR_FMT.format('European option call price at T0:',
+                         f'{option.price()}'))
+
+    # American option
+    option.option_type = 'American'
+    option.option_right = 'Put'
+    print(STR_FMT.format('American option put price at T0:',
+                         f'{option.price()}'))
+
+    option.option_right = 'Call'
+    print(STR_FMT.format('American option call price at T0:',
+                         f'{option.price()}'))
+
+
+def trinomial_tree() -> None:
+    r"""
+    Trinomial trees in option pricing.
+
+    Notes
+    ----------
+    In a trinomial tree, each node leads to three nodes in the next step.
+    Besides having an up and down state, the middle node of the trinomial tree
+    indicates no change in state.
+
+    Let's consider a Boyle trinomial tree, where the tree is calibrated so that
+    the probability of up, down, and flat movements, u, d, and m with
+    risk-neutral probabilities q_u, q_d, and q_m are as follows
+
+        u = e^{ σ √{Δt} }       m = ud = 1      d = 1 / u = e^{ -σ √{Δt} }
+
+            q_u = ((exp{r * Δt / 2} - exp{-σ * √{Δt / 2}}) /
+                   (exp{σ * √{Δt / 2}} - exp{-σ * √{Δt / 2}}))**2
+
+            q_d = ((exp{σ * √{Δt / 2}} - exp{r * Δt / 2}) /
+                   (exp{σ * √{Δt / 2}} - exp{-σ * √{Δt / 2}}))**2
+
+                           q_m = 1 - q_u - q_d
+
+    In general, with an increased number of nodes to process, a trinomial tree
+    gives better accuracy than the binomial tree when fewer time steps are
+    modelled, saving on computation speed and resources.
+
+    """
+    from utils.option import TrinomialTreeOption
+
+    S = 50
+    K = 52
+    option_right = 'Put'
+    option_type = 'European'
+    T = 2
+    r = 0.05
+    vol = 0.3
+    N = 2
+
+    # European option
+    option = TrinomialTreeOption(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N
+    )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # American option
+    option.option_type = 'American'
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+
+def binomial_lattice() -> None:
+    """
+    Lattices in option pricing.
+
+    Notes
+    ----------
+    In binomial trees, each nodes recombines to every alternative node. In
+    trinomial trees, each node recombines at every other node. This property of
+    recombining trees can also be represented as lattices to save memory
+    without recomputing and storing recombined nodes.
+
+    In a binomial CCR tree, at every alternate up and down nodes, the prices
+    recombine to the same probability of ud = 1. Now the tree can be
+    represented as a single list; [Suu, Su, S, Sd, Sdd].
+
+    For an N-step binomial tree, a list of size 2N + 1 is required to contain
+    the information on the underlying stock prices. For European option
+    pricing, the odd nodes of payoffs from the list represent the option value
+    upon maturity. The tree traverses backwards to obtain the option value. For
+    American option pricing, as the tree traverses backward, both ends of the
+    list shrink, and the odd nodes represent the associated stock prices for
+    any step. Payoffs from earlier exercise can then be taken into account.
+
+    """
+    from utils.option import BinomialCCRLattice
+
+    S = 50
+    K = 52
+    option_right = 'Put'
+    option_type = 'European'
+    T = 2
+    r = 0.05
+    vol = 0.3
+    N = 2
+
+    # European option
+    option = BinomialCCRLattice(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N
+    )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # American option
+    option.option_type = 'American'
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(option.price())))
 
 
 def main() -> None:
