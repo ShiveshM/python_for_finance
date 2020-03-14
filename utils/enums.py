@@ -4,7 +4,7 @@ Enumeration utility classes.
 
 from enum import Enum, auto
 
-__all__ = ['OptionRight', 'OptionType', 'UnderlyingType', 'ModelType']
+__all__ = ['OptionRight', 'OptionType']
 
 
 class PPEnum(Enum):

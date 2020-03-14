@@ -11,7 +11,8 @@ Ma Weiming's "Mastering Python for Finance", published by Packt.
 import math
 
 
-__all__ = ['european_option', 'american_option', 'cox_ross_rubinstein']
+__all__ = ['european_option', 'american_option', 'cox_ross_rubinstein',
+           'leisen_reimer']
 
 IMGDIR = './img/chap4/'
 """Path to store images."""
@@ -20,7 +21,7 @@ STR_FMT = '{0}\n{1}\n'
 
 
 def european_option() -> None:
-    """
+    r"""
     Pricing European options using a binomial tree.
 
     Notes
@@ -176,32 +177,94 @@ def cox_ross_rubinstein() -> None:
     S = 50
     K = 52
     option_right = 'Put'
-    option_type = 'American'
+    option_type = 'European'
     T = 2
     r = 0.05
     vol = 0.3
     N = 2
 
-    # American option
-    am_option = BinomialCCROption(
+    # European option
+    option = BinomialCCROption(
         S, K, option_right=option_right, option_type=option_type, T=T, r=r,
         vol=vol, N=N
     )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
 
+    # American option
+    option.option_type = 'American'
     print(STR_FMT.format('American option put price at T0:',
-                         '${:.2f}'.format(am_option.price())))
-    print(STR_FMT.format('am_option', f'{am_option}'))
+                         '${:.2f}'.format(option.price())))
+
+
+def leisen_reimer() -> None:
+    """
+    The Leisen-Reimer (LR) tree model [1].
+
+    Notes
+    ----------
+    LR tree model is a binomial tree model with the purpose of approximating
+    the Black-Scholes solution as the number of steps increases. The nodes do
+    not recombine at every alternative step and it uses an inversion formula to
+    achieve better accuracy during tree traversal.
+
+    Here is used method two of the Peizer and Pratt inversion function f with
+    the following characteristic parameters:
+
+        f(z, j(n)) = 0.5 ∓ √[0.25 - 0.25 *
+            exp{-(z / (n + (1/3) + (0.1 / (n + 1))))^2 * (n + (1/6))}]
+
+                j(n) = {n, if n is even || n + 1, if n is odd}
+
+                p' = f(d1, j(n))           p = f(d2, j(n))
+
+             d1 = (log(S / K) + (r + (σ^2 / 2)) * T) / (σ * √T)
+             d2 = (log(S / K) + (r - (σ^2 / 2)) * T) / (σ * √T)
+
+                        u = exp{r * Δt} * (p' / p)
+                   d = (exp{r * Δy} - (p * u)) / (1 - p)
+
+    [1] Leisen, D. & Reimer, M. "Binomial Models for Option Valuation -
+        Examining and Improving Convergence"
+        https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5976
+
+    """
+    from utils.option import BinomialLROption
+
+    S = 50
+    K = 52
+    option_right = 'Put'
+    option_type = 'European'
+    T = 2
+    r = 0.05
+    vol = 0.3
+    N = 4
 
     # European option
-    option_type = 'European'
-    eu_option = BinomialCCROption(
+    option = BinomialLROption(
         S, K, option_right=option_right, option_type=option_type, T=T, r=r,
         vol=vol, N=N
     )
-
+    print(STR_FMT.format('option', f'{option}'))
     print(STR_FMT.format('European option put price at T0:',
-                         '${:.2f}'.format(eu_option.price())))
-    print(STR_FMT.format('eu_option', f'{eu_option}'))
+                         '${:.2f}'.format(option.price())))
+
+    # American option
+    option.option_type = 'American'
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+
+def greeks() -> None:
+    """
+    The Greeks for free.
+
+    Notes
+    ----------
+
+    """
+    pass
 
 
 def main() -> None:

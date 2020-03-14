@@ -2,17 +2,13 @@
 Base dataclass for pricing classes.
 """
 
-import math
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List
-
-import numpy as np
 
 from utils.enums import OptionRight, OptionType
 from utils.misc import is_num, is_pos
 
-__all__ = ['BaseDataclass', 'BaseBinomialTree']
+__all__ = ['BaseDataclass']
 
 
 @dataclass(init=False)
@@ -53,6 +49,7 @@ class BaseDataclass:
         self.r = r
         self.vol = vol
         self.div = div
+        self.STs = []
 
     @property
     def S(self) -> float:
@@ -191,140 +188,3 @@ class BaseDataclass:
     def net_r(self) -> float:
         """Net risk free rate."""
         return self.r - self.div
-
-
-@dataclass(init=False)
-class BaseBinomialTree(ABC, BaseDataclass):
-    """
-    Base class for computing binomial trees.
-
-    Attributes
-    ----------
-    S : Stock price today (or at the time of evaluation).
-    K : Strike price.
-    option_right : Right of the option.
-    option_type : Type of the option.
-    T : Time to maturity, in years.
-    r : Risk-free interest rate.
-    vol : Volatility.
-    div : Dividend yield.
-    net_r : Net risk free rate.
-    N : Number of time steps.
-    u : Expected value in the up state.
-    d : Expected value in the down state.
-    qu : Risk-neutral probabiity for the up state.
-    qd : Risk-neutral probabiity for the down state.
-    dt : Single time step, in years.
-    df : The discount factor.
-
-    Methods
-    ----------
-    init_stock_price_tree()
-        Initialise stock prices for each node.
-    init_payoffs_tree()
-        Returns the payoffs when the option expires at terminal nodes.
-    traverse_tree(payoffs : List[float])
-        Calculate discounted payoffs.
-    begin_tree_traversal()
-        Calculate payoffs at end node, and discount to present time.
-    price()
-        Entry point of the pricing implementation.
-
-    """
-    N: int = 2
-
-    def __init__(self, S: float, K: float, option_right: (str, OptionRight),
-                 option_type: (str, OptionType), T: float = 1.,
-                 r: float = 0.05, vol: float = 0., div: float = 0.,
-                 N: int = 2):
-        super().__init__(S, K, option_right, option_type, T, r, vol, div)
-        self.N = N
-
-    @property
-    def N(self) -> int:
-        """Number of increments."""
-        return self._N
-
-    @N.setter
-    def N(self, val: int) -> None:
-        """Set the number of increments."""
-        if not isinstance(val, (int, np.int)):
-            raise ValueError(
-                f'Expected integer, instead got {val} with type {type(val)}'
-            )
-        if not is_pos(val):
-            raise ValueError(f'Expected non-negative int, instead got {val}')
-        self._N = val
-
-    @property
-    @abstractmethod
-    def u(self) -> float:
-        """Expected value in the up state."""
-        pass
-
-    @property
-    @abstractmethod
-    def d(self) -> float:
-        """Expected value in the down state."""
-        pass
-
-    @property
-    def qu(self) -> float:
-        """Risk-neutral probabiity for the up state."""
-        num = (1 / self.df) - self.d
-        den = self.u - self.d
-        return num / den
-
-    @property
-    def qd(self) -> float:
-        """Risk-neutral probabiity for the down state."""
-        return 1 - self.qu
-
-    @property
-    def dt(self) -> float:
-        """Single time step, in years."""
-        return self.T / float(self.N)
-
-    @property
-    def df(self) -> float:
-        """The discount factor."""
-        return math.exp(-self.net_r * self.dt)
-
-    @abstractmethod
-    def init_stock_price_tree(self) -> None:
-        """Calculate stock prices at each node."""
-        pass
-
-    @abstractmethod
-    def init_payoffs_tree(self) -> List[float]:
-        """Returns the payoffs at maturity."""
-        pass
-
-    @abstractmethod
-    def traverse_tree(self, payoffs: List[float]) -> float:
-        """
-        Calculate discounted payoffs.
-
-        Starting from the time the option expires, traverse backwards and
-        calculate discounted payoffs at each node.
-
-        Parameters
-        ----------
-        payoffs : List of payoffs at the end node.
-
-        Returns
-        ----------
-        dis_payoff : Discounted payoff.
-
-        """
-        pass
-
-    @abstractmethod
-    def begin_tree_traversal(self) -> float:
-        """Calculate payoffs at end node, and discount to present time."""
-        pass
-
-    @abstractmethod
-    def price(self) -> float:
-        """Calculate the premium of the option."""
-        pass
