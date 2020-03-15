@@ -12,7 +12,8 @@ import math
 
 
 __all__ = ['european_option', 'american_option', 'cox_ross_rubinstein',
-           'leisen_reimer', 'greeks', 'trinomial_tree', 'binomial_lattice']
+           'leisen_reimer', 'greeks', 'trinomial_tree', 'binomial_lattice',
+           'trinomial_lattice', 'finite_diff_explicit']
 
 IMGDIR = './img/chap4/'
 """Path to store images."""
@@ -67,7 +68,7 @@ def european_option() -> None:
 
     The present value of the put option can be priced as:
 
-          p_t = e^{-r(T - t)}[ 0(q)^2 + 2(4)(q)(1 - q) + 20(1 - q)^2 ]
+          p_t = e^{-r(T - t)}[ 0(q)² + 2(4)(q)(1 - q) + 20(1 - q)² ]
 
     """
     from utils.option import BinomialTreeOption
@@ -199,7 +200,7 @@ def cox_ross_rubinstein() -> None:
 
 
 def leisen_reimer() -> None:
-    """
+    r"""
     The Leisen-Reimer (LR) tree model [1].
 
     Notes
@@ -213,14 +214,14 @@ def leisen_reimer() -> None:
     the following characteristic parameters:
 
         f(z, j(n)) = 0.5 ∓ √[0.25 - 0.25 *
-            exp{-(z / (n + (1/3) + (0.1 / (n + 1))))^2 * (n + (1/6))}]
+            exp{-(z / (n + (1/3) + (0.1 / (n + 1))))² * (n + (1/6))}]
 
                 j(n) = {n, if n is even || n + 1, if n is odd}
 
                 p' = f(d1, j(n))           p = f(d2, j(n))
 
-             d1 = (log(S / K) + (r + (σ^2 / 2)) * T) / (σ * √T)
-             d2 = (log(S / K) + (r - (σ^2 / 2)) * T) / (σ * √T)
+             d1 = (log(S / K) + (r + (σ² / 2)) * T) / (σ * √T)
+             d2 = (log(S / K) + (r - (σ² / 2)) * T) / (σ * √T)
 
                         u = exp{r * Δt} * (p' / p)
                    d = (exp{r * Δy} - (p * u)) / (1 - p)
@@ -360,10 +361,10 @@ def trinomial_tree() -> None:
         u = e^{ σ √{Δt} }       m = ud = 1      d = 1 / u = e^{ -σ √{Δt} }
 
             q_u = ((exp{r * Δt / 2} - exp{-σ * √{Δt / 2}}) /
-                   (exp{σ * √{Δt / 2}} - exp{-σ * √{Δt / 2}}))**2
+                   (exp{σ * √{Δt / 2}} - exp{-σ * √{Δt / 2}}))²
 
             q_d = ((exp{σ * √{Δt / 2}} - exp{r * Δt / 2}) /
-                   (exp{σ * √{Δt / 2}} - exp{-σ * √{Δt / 2}}))**2
+                   (exp{σ * √{Δt / 2}} - exp{-σ * √{Δt / 2}}))²
 
                            q_m = 1 - q_u - q_d
 
@@ -445,6 +446,176 @@ def binomial_lattice() -> None:
     # American option
     option.option_type = 'American'
     print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+
+def trinomial_lattice() -> None:
+    """
+    Trinomial lattice for option pricing.
+
+    Notes
+    ----------
+    The trinomial lattice works in very much the same way as the binomial
+    lattice. Since each node recombines at every other node instead of
+    alternate nodes, extracting odd nodes from the list is not necessary. Since
+    the size of the list is the same as in the binomial lattice, there are no
+    extra storage requirements in trinomial lattice pricing.
+
+    """
+    from utils.option import TrinomialLattice
+
+    S = 50
+    K = 52
+    option_right = 'Put'
+    option_type = 'European'
+    T = 2
+    r = 0.05
+    vol = 0.3
+    N = 2
+
+    # European option
+    option = TrinomialLattice(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N
+    )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # American option
+    option.option_type = 'American'
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+
+def finite_diff_explicit() -> None:
+    r"""
+    Finite differences in option pricing.
+
+    Notes
+    ----------
+    Finite difference schemes are very much similar to the trinomial tree
+    option pricing. The motivation behind the finite differencing is the
+    application of the Black Scholes PDE framework, where S(t) is a function of
+    f(S, t):
+
+                rf = df/dt + r S df/dS + 1/2 σ² S² d²f/dS²
+
+    The finite difference technique tends to converge faster than lattices and
+    approximates complex exotic options well.
+
+    To solve a PDE by finite differences working backward in time, a
+    discrete-time grid of size M by N is set up to reflect asset prices over a
+    course of time, so that S and t take on the following values at each point
+    on the grid.
+
+    By grid notation f_ij = f(i δS, j δt). S_max is a suitably large asset
+    price that account be reached by the maturity time, T. The grid traverses
+    backward from the terminal conditions, complying with the PDE while
+    adhereing to the boundary conditions of the grid, such as the payoff from
+    an earlier exercise.
+
+    The boundary conditions are defined values at the extreme ends of the
+    nodes, where i=0 and i=N-1 for every time t. Values at the boundaries are
+    used to calculate the values of all other lattice nodes iteratively using
+    the PDE.
+
+                              j=0 to N nodes
+                        t ----------------------> T
+                        s   Boundary conditions
+                        | ······················ T
+                        | ······················ e
+                        | ······················ r
+         i=0 to M nodes | ······················ m conditions
+                        | ······················ i
+                        | ······················ n
+                        | ······················ a
+                        | ······················ l
+                        ↓ ······················<-Smax
+                        S   Boundary conditions
+
+    A number of ways to approximate the PDE are as follows:
+    - Forward difference
+
+        δf = f_{i+1, j} - f_{i, j}      δf = f_{i, j+1} - f_{i, j}
+        δS          δS                  δt          δt
+
+    - Backward difference:
+
+        δf = f_{i, j} - f_{i-1, j}      δf = f_{i, j} - f_{i, j-1}
+        δS          δS                  δt          δt
+
+    - Central or symmetric difference
+
+        δf = f_{i+1, j} - f_{i-1, j}    δf = f_{i, j+1} - f_{i, j-1}
+        δS           2δS                δt           2δt
+
+    - The second derivative
+
+        δ²f = f_{i+1, j} - 2 f_{i-1, j} + f_{i-1, j}
+        δS²                 δS²
+
+    Once we have the boundary conditions set up, we can now apply an iterative
+    approach using the explicit, implicit, or Crank-Nicolson method.
+
+    The explicit method for approximating f_ij is given by the following
+    equation
+
+     r f_{i, j} = (f_{i, j} - f_{i, j-1})/δt +
+                  r i δS (f_{i+1, j} - f_{i-1, j}) / 2δS +
+                  (1/2) σ² j² δS² (f_{i+1, j} + f_{i-1, j} - 2 f_{i, j}) / δS²
+
+    If we rearrange, we get the following equation
+
+        f_{i, j} = a*_i f_{i-1, j+1} + b*_i f_{i, j+1} + c*_i f_{i+1, j+1}
+
+    where
+
+         i = 0, 1, 2,..., M-1, M             j = 0, 1, 2,..., N-1, N
+
+                        a*_i = (1/2) δt (σ² i² - r i)
+                        b*_i = 1 - δt (σ² i² - r)
+                        c*_i = (1/2) δt (σ² i² + r i)
+
+    This can be represented by the following diagram
+
+                                 · f_{i+1, j+1}
+                               /
+                    f_{i, j} · - · f_{i,   j+1}
+                               \
+                                 · f_{i-1, j+1}
+
+    """
+    from utils.fd import FDExplicitEu
+
+    S = 50
+    K = 50
+    option_right = 'Put'
+    option_type = 'European'
+    T = 5/12
+    r = 0.1
+    vol = 0.4
+    N = 1000
+    M = 100
+    Smax = 100
+
+    # European option
+    option = FDExplicitEu(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N, M=M, Smax=Smax
+    )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # If the values of M and N are chosen improperly, then we see the finite
+    # difference scheme suffers from instability problems
+    N = 100
+    M = 80
+    option.N = N
+    option.M = M
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
                          '${:.2f}'.format(option.price())))
 
 

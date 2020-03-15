@@ -49,7 +49,6 @@ class BaseDataclass:
         self.r = r
         self.vol = vol
         self.div = div
-        self.STs = []
 
     @property
     def S(self) -> float:

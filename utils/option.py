@@ -66,6 +66,7 @@ class BaseBinomialTree(ABC, BaseDataclass):
                  N: int = 2):
         super().__init__(S, K, option_right, option_type, T, r, vol, div)
         self.N = N
+        self.STs = []
 
     @property
     def N(self) -> int:
@@ -729,3 +730,76 @@ class BinomialCCRLattice(BinomialCCROption):
         if self.option_right is OptionRight.Call:
             return np.maximum(payoffs, odd_STs - self.K)
         return np.maximum(payoffs, self.K - odd_STs)
+
+
+class TrinomialLattice(TrinomialTreeOption):
+    """
+    Price an option on a stock using a trinomial tree model lattice.
+
+    Attributes
+    ----------
+    S : Stock price today (or at the time of evaluation).
+    K : Strike price.
+    T : Time to maturity.
+    option_right : Right of the option.
+    option_type : Type of option
+    r : Risk-free interest rate.
+    vol : Volatility.
+    div : Dividend yield.
+    N : Number of time steps.
+    pu : Probability in up state.
+    pd : Probability in down state.
+    dt : Single time step, in years.
+    df : The discount factor.
+    u : Expected value in the up state.
+    d : Expected value in the down state.
+    m : Expected value in the middle state.
+    qu : Risk-neutral probabiity for the up state.
+    qd : Risk-neutral probabiity for the down state.
+    qm : Risk-neutral probabiity for the middle state.
+    M : Size of data structure.
+
+    Methods
+    ----------
+    init_stock_price_tree()
+        Initialise stock prices for each node.
+    init_payoffs_tree()
+        Returns the payoffs when the option expires at terminal nodes.
+    traverse_tree(payoffs : List[float])
+        Calculate discounted payoffs.
+    begin_tree_traversal()
+        Calculate payoffs at end node, and discount to present time.
+    price()
+        Entry point of the pricing implementation.
+
+    """
+
+    @property
+    def M(self) -> float:
+        """Size of data structure."""
+        return 2 * self.N + 1
+
+    def init_stock_price_tree(self) -> None:
+        """Initialise stock prices for each node."""
+        self.STs = np.zeros(self.M)
+        self.STs[0] = self.S * self.u**self.N
+
+        for i in range(1, self.M):
+            self.STs[i] = self.STs[i - 1] * self.d
+
+    def init_payoffs_tree(self) -> List[float]:
+        """Returns the payoffs when the option expires at maturity."""
+        if self.option_right is OptionRight.Call:
+            return np.maximum(0, self.STs - self.K)
+        return np.maximum(0, self.K - self.STs)
+
+    def check_early_exercise(self, payoffs: List[float],
+                             node: int) -> List[float]:
+        """
+        Returns the maximum payoff values between exercising early and not
+        exercising the option at all.
+        """
+        self.STs = self.STs[1: -1] # Shortens ends of the list
+        if self.option_right is OptionRight.Call:
+            return np.maximum(payoffs, self.STs - self.K)
+        return np.maximum(payoffs, self.K - self.STs)
