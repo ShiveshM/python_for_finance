@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import List
 
 import numpy as np
+import scipy.linalg
 
 from utils.baseclass import BaseDataclass
 from utils.enums import OptionRight, OptionType
@@ -42,14 +43,16 @@ class BaseFiniteDifferences(ABC, BaseDataclass):
 
     Methods
     ----------
-    setup_grid()
-        Setup the grid.
     setup_boundary_conditions()
         Setup the boundary conditions.
     setup_coefficients()
         Setup the coefficients.
     traverse_grid()
         Iterate the grid backwards in time.
+    setup_grid()
+        Setup the grid.
+    check_early_exercise(s_index)
+        Returns the payoff if exercising early.
     interpolate()
         Use piecewise linear interpolation on the initial grid column to get
         the closest price at S0.
@@ -147,6 +150,13 @@ class BaseFiniteDifferences(ABC, BaseDataclass):
         self.grid = np.zeros(shape=(self.M + 1, self.N + 1))
         self.boundary_conds = np.linspace(0, self.Smax, self.M + 1)
 
+    def check_early_exercise(self, s_index: int) -> float:
+        """Returns the payoff if exercising early."""
+        S = self.boundary_conds[s_index]
+        if self.option_right is OptionRight.Call:
+            return S - self.K
+        return self.K - S
+
     def interpolate(self) -> float:
         """
         Use piecewise linear interpolation on the initial grid column to get
@@ -166,7 +176,7 @@ class BaseFiniteDifferences(ABC, BaseDataclass):
 
 class FDExplicitEu(BaseFiniteDifferences):
     """
-    Base class for computing finite differences.
+    Euler Finite Difference Method for Black Scholes
 
     Attributes
     ----------
@@ -187,14 +197,16 @@ class FDExplicitEu(BaseFiniteDifferences):
 
     Methods
     ----------
-    setup_grid()
-        Setup the grid.
     setup_boundary_conditions()
-        Setup the boundary conditions
+        Setup the boundary conditions.
     setup_coefficients()
         Setup the coefficients.
     traverse_grid()
         Iterate the grid backwards in time.
+    setup_grid()
+        Setup the grid.
+    check_early_exercise(s_index)
+        Returns the payoff if exercising early.
     interpolate()
         Use piecewise linear interpolation on the initial grid column to get
         the closest price at S0.
@@ -226,7 +238,96 @@ class FDExplicitEu(BaseFiniteDifferences):
         """Iterate the grid backwards in time."""
         for i_t in reversed(self.t_steps):
             for i_s in range(1, self.M):
+                if self.option_type is OptionType.American:
+                    val = self.check_early_exercise(i_s)
+                    if val > 0:
+                        self.grid[i_s, i_t] = val
+                        continue
                 self.grid[i_s, i_t] = \
                     self.a[i_s] * self.grid[i_s - 1, i_t + 1] + \
                     self.b[i_s] * self.grid[i_s, i_t + 1] + \
                     self.c[i_s] * self.grid[i_s + 1, i_t + 1]
+
+
+class FDImplicitEu(BaseFiniteDifferences):
+    """
+    Implicit Finite Difference Method for Black Scholes.
+
+    Attributes
+    ----------
+    S : Stock price today (or at the time of evaluation).
+    K : Strike price.
+    option_right : Right of the option.
+    option_type : Type of the option.
+    T : Time to maturity, in years.
+    r : Risk-free interest rate.
+    vol : Volatility.
+    div : Dividend yield.
+    net_r : Net risk free rate.
+    N : Number of time steps.
+    M : Number of underlying steps.
+    Smax : Maximum possible price of underlying.
+    dS : Finite change in S per unit time.
+    dt : Finite change in t per unit stock.
+
+    Methods
+    ----------
+    setup_boundary_conditions()
+        Setup the boundary conditions.
+    setup_coefficients()
+        Setup the coefficients.
+    traverse_grid()
+        Solve using linear system of equations.
+    setup_grid()
+        Setup the grid.
+    check_early_exercise(s_index)
+        Returns the payoff if exercising early.
+    interpolate()
+        Use piecewise linear interpolation on the initial grid column to get
+        the closest price at S0.
+    price()
+        Entry point of the pricing implementation.
+
+    """
+
+    def setup_boundary_conditions(self) -> None:
+        """Setup the boundary conditions"""
+        if self.option_right == OptionRight.Call:
+            self.grid[:, -1] = np.maximum(0, self.boundary_conds - self.K)
+            self.grid[-1,: -1] = (self.Smax - self.K) * \
+                np.exp(-self.net_r * self.dt * (self.N - self.t_steps))
+        else:
+            self.grid[:, -1] = np.maximum(0, self.K - self.boundary_conds)
+            self.grid[0,: -1] = (self.K - self.boundary_conds[0]) * \
+                np.exp(-self.net_r * self.dt * (self.N - self.t_steps))
+
+    def setup_coefficients(self) -> None:
+        """Setup the coefficients."""
+        self.a = (1/2) * self.dt * (self.net_r * self.s_steps -
+                                    self.vol**2 * self.s_steps**2)
+        self.b = 1 + self.dt * (self.net_r + self.vol**2 * self.s_steps**2)
+        self.c = -(1/2) * self.dt * (self.net_r * self.s_steps +
+                                     self.vol**2 * self.s_steps**2)
+        self.coeffs = np.diag(self.a[2: self.M], -1) + \
+                      np.diag(self.b[1: self.M]) + \
+                      np.diag(self.c[1: self.M - 1], 1)
+
+    def traverse_grid(self) -> None:
+        """Solve using linear system of equations."""
+        if self.option_type == OptionType.American:
+            raise NotImplementedError('Not implemented American style!')
+        # LU decomposition of A where P is the permutation matrix, L is the
+        # lower triangular matrix and U is the upper triangular matrix
+        P, L, U = scipy.linalg.lu(self.coeffs)
+        aux = np.zeros(self.M - 1)
+
+        for i_t in reversed(range(self.N)):
+            aux[0] = np.dot(-self.a[1], self.grid[0, i_t])
+            B = self.grid[1: self.M, i_t + 1] + aux
+
+            # Solve for y = U x, where L y = B
+            y = scipy.linalg.solve(L, B)
+
+            # Finally solve for U x = y
+            x = scipy.linalg.solve(U, y)
+            self.grid[1: self.M, i_t] = x

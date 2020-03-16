@@ -13,10 +13,8 @@ import math
 
 __all__ = ['european_option', 'american_option', 'cox_ross_rubinstein',
            'leisen_reimer', 'greeks', 'trinomial_tree', 'binomial_lattice',
-           'trinomial_lattice', 'finite_diff_explicit']
+           'trinomial_lattice', 'finite_diff_explicit', 'implicit']
 
-IMGDIR = './img/chap4/'
-"""Path to store images."""
 STR_FMT = '{0}\n{1}\n'
 """String formatting for printing to standard output."""
 
@@ -490,7 +488,7 @@ def trinomial_lattice() -> None:
 
 def finite_diff_explicit() -> None:
     r"""
-    Finite differences in option pricing.
+    Euler Finite Difference Method for Black Scholes.
 
     Notes
     ----------
@@ -608,12 +606,120 @@ def finite_diff_explicit() -> None:
     print(STR_FMT.format('European option put price at T0:',
                          '${:.2f}'.format(option.price())))
 
-    # If the values of M and N are chosen improperly, then we see the finite
+    option.option_right = 'Call'
+    print(STR_FMT.format('European option call price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # American option
+    option.option_right = 'Put'
+    option.option_type = 'American'
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('American option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    option.option_right = 'Call'
+    print(STR_FMT.format('American option call price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # If the values of M and N are chosen improperly, then we see this finite
     # difference scheme suffers from instability problems
-    N = 100
-    M = 80
-    option.N = N
-    option.M = M
+    option.option_type = 'European'
+    option.option_right = 'Put'
+    option.N = 100
+    option.M = 80
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+def implicit() -> None:
+    r"""
+    Implicit Finite Difference Method for Black Scholes.
+
+    Notes
+    ----------
+    The instability of the explicit method can be overcome using the forward
+    difference with respect to time. The implicit method for approxmating
+    f_{i, j} is given by
+
+     r f_{i, j} = (f_{i, j+1} - f_{i, j})/δt +
+                  r i δS (f_{i+1, j} - f_{i-1, j}) / 2δS +
+                  (1/2) σ² j² δS² (f_{i+1, j} + f_{i-1, j} - 2 f_{i, j}) / δS²
+
+    The only difference between this and the implicit method is the first
+    difference, where the forward difference with respect to t is used in the
+    implicit scheme. When we rearrange we obtain
+
+         f_{i, j+1} = a_i f_{i-1, j} + b_i f_{i, j} + c_i f_{i+1, j}
+
+    where
+
+         i = 0, 1, 2,..., M-1, M             j = 0, 1, 2,..., N-1, N
+
+                        a_i = (1/2) δt (r i - σ² i²)
+                        b_i = 1 + δt (r + σ² i²)
+                        c_i = -(1/2) δt (r i + σ² i²)
+
+    This can be represented by the following diagram
+
+                        · f_{i+1, j}
+                        |
+                    f_{i, j} · - · f_{i, j+1}
+                        |
+                        · f_{i-1, j}
+
+    In the implicit scheme, the grid can be thought of as representing a system
+    of linear equations at each iteration, a follows
+
+[ b1  c1  0   0    0    0   ] [  f_{1, j}  ]   [ a1 f_{0, j} ]   [  f_{1, j+1}  ]
+[ a2  b2  c2  0    0    0   ] [  f_{2, j}  ]   [      0      ]   [  f_{2, j+1}  ]
+[ 0   0   b3 ...   0    0   ] [  f_{3, j}  ] + [      0      ] = [  f_{3, j+1}  ]
+[ ⁞   ⁞   ⁞   ⋱    ⁞    ⁞   ] [     ⁞      ]   [      ⁞      ]   [       ⁞      ]
+[ 0   0   0  aM-2 bM-2 cM-2 ] [ f_{M-2, j} ]   [      0      ]   [ f_{M-2, j+1} ]
+[ 0   0   0   0   aM-1 bM-1 ] [ f_{M-1, j} ]   [cM-1 f_{M, j}]   [ f_{M-1, j+1} ]
+
+    Rearranging,
+[ b1  c1  0   0    0    0   ] [  f_{1, j}  ]   [  f_{1, j+1}  ]   [ a1 f_{0, j} ]
+[ a2  b2  c2  0    0    0   ] [  f_{2, j}  ]   [  f_{2, j+1}  ]   [      0      ]
+[ 0   0   b3 ...   0    0   ] [  f_{3, j}  ] = [  f_{3, j+1}  ] - [      0      ]
+[ ⁞   ⁞   ⁞   ⋱    ⁞    ⁞   ] [     ⁞      ]   [       ⁞      ]   [      ⁞      ]
+[ 0   0   0  aM-2 bM-2 cM-2 ] [ f_{M-2, j} ]   [ f_{M-2, j+1} ]   [      0      ]
+[ 0   0   0   0   aM-1 bM-1 ] [ f_{M-1, j} ]   [ f_{M-1, j+1} ]   [cM-1 f_{M, j}]
+
+    Here we have a system of linear equations in the form Ax=B, where we want
+    to solve values of x in each iteration. Since the matrix A is tri-diagonal,
+    we can use the LU factorisation, where A=LU (see chap2.py).
+
+    """
+    from utils.fd import FDImplicitEu
+
+    S = 50
+    K = 50
+    option_right = 'Put'
+    option_type = 'European'
+    T = 5/12
+    r = 0.1
+    vol = 0.4
+    N = 1000
+    M = 100
+    Smax = 100
+
+    # European option
+    option = FDImplicitEu(
+        S, K, option_right=option_right, option_type=option_type, T=T, r=r,
+        vol=vol, N=N, M=M, Smax=Smax
+    )
+    print(STR_FMT.format('option', f'{option}'))
+    print(STR_FMT.format('European option put price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    option.option_right = 'Call'
+    print(STR_FMT.format('European option call price at T0:',
+                         '${:.2f}'.format(option.price())))
+
+    # Now we see no instability issues
+    option.option_right = 'Put'
+    option.N = 100
+    option.M = 80
     print(STR_FMT.format('option', f'{option}'))
     print(STR_FMT.format('European option put price at T0:',
                          '${:.2f}'.format(option.price())))

@@ -358,6 +358,15 @@ def lu_decomp() -> None:
     print(STR_FMT.format('L', L))
     print(STR_FMT.format('U', U))
 
+    # Solve for y = U x, where L y = B
+    y = np.linalg.solve(L, B)
+    print(STR_FMT.format('y', y))
+
+    # Finally solve for U x = y
+    x = np.linalg.solve(U, y)
+    print(STR_FMT.format('x', x))
+    print(STR_FMT.format('A @ x.T', A @ x.T))
+
 
 def cholesky() -> None:
     """
