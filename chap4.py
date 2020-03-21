@@ -577,11 +577,11 @@ def finite_diff_explicit() -> None:
 
     This can be represented by the following diagram
 
-                                 · f_{i+1, j+1}
-                               /
-                    f_{i, j} · - · f_{i,   j+1}
-                               \
-                                 · f_{i-1, j+1}
+                                     · f_{i+1, j+1}
+                                   /
+                        f_{i, j} · - · f_{i, j+1}
+                                   \
+                                     · f_{i-1, j+1}
 
     """
     from utils.fd import FDExplicitEu
@@ -661,11 +661,11 @@ def implicit() -> None:
 
     This can be represented by the following diagram
 
-                        · f_{i+1, j}
-                        |
-                    f_{i, j} · - · f_{i, j+1}
-                        |
-                        · f_{i-1, j}
+                                 · f_{i+1, j}
+                                 |
+                        f_{i, j} · - · f_{i, j+1}
+                                 |
+                                 · f_{i-1, j}
 
     In the implicit scheme, the grid can be thought of as representing a system
     of linear equations at each iteration, a follows
@@ -723,6 +723,47 @@ def implicit() -> None:
     print(STR_FMT.format('option', f'{option}'))
     print(STR_FMT.format('European option put price at T0:',
                          '${:.2f}'.format(option.price())))
+
+
+def crank_nicolson() -> None:
+    r"""
+    Crank-Nicolson Finite Difference Method for Black Scholes.
+
+    Notes
+    ----------
+    Another way of avoiding instabilities issues as seen in the explicit
+    method, is to use the Crank-Nicolson method. This method converges much
+    more quickly using a combination of the explicit and implicit methods,
+    taking the average of both. This leads to the following equation
+
+    (1/2) r f_{i, j-1} + (1/2) r f_{i, j} =
+    (f_{i, j} - f_{i, j-1})/δt (1/2) r i δS (f_{i+1, j-1} - f_{i-1, j-1}) / 2δS
+    + (1/2) r i δS (f_{i+1, j} - f_{i-1, j}) / 2δS
+    + (1/4) σ² i² δS² (f_{i+1, j-1} - 2 f_{i, j-1} + f_{i-1, j-1}) / 2δS²
+    + (1/4) σ² i² δS² (f_{i+1, j} - 2 f_{i, j} + f_{i-1, j}) / 2δS²
+
+    which can be rewritten as
+
+        -α_i f_{i-1, j-1} + (1 - β_i) f_{i, j-1} - γ_i f_{i+1, j-1} =
+            α_i f_{i-1, j} + (1 - β_i) f_{i, j-1} - γ_i f_{i+1, j}
+
+                        α_i = δt/4 (σ² i² - r i)
+                        β_i = δt/2 (σ² i² + r i)
+                        γ_i = δt/4 (σ² i² + r i)
+
+    This approach can be visually represented with the following diagram
+
+                      f_{i+1, j} ·   · f_{i+1, j+1}
+                                 | /
+                        f_{i, j} · - · f_{i, j+1}
+                                 | \
+                      f_{i-1, j} ·   · f_{i-1, j+1}
+
+    We can treat the equations as a system of linear equations
+
+                            M_1 f_{j-1} = M_2 f_j
+
+    """
 
 
 def main() -> None:
