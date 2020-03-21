@@ -7,30 +7,30 @@ This module wraps into standalone functions the contents of James Ma Weiming's
 
 ### Chapters
 1. **Overview of Financial Analysis with Python**
-  * Introduction to Quandl
-  * Plotting a time series chart
-  * Performing financial analysis on time series data
+    * Introduction to Quandl
+    * Plotting a time series chart
+    * Performing financial analysis on time series data
 2. **Importance of Linearity in Finance**
-  * The Captial Asset Pricing Model and the security market line
-  * The Arbitrage Pricing Theory Model
-  * Multivariate linear regression of factors
-  * Linear optimization
-  * Solving linear equations using matrices
-  * The LU decomposition
-  * The Cholesky decomposition
-  * The QR decomposition
-  * Solving with other matrix algebra methods
+    * The Captial Asset Pricing Model and the security market line
+    * The Arbitrage Pricing Theory Model
+    * Multivariate linear regression of factors
+    * Linear optimization
+    * Solving linear equations using matrices
+    * The LU decomposition
+    * The Cholesky decomposition
+    * The QR decomposition
+    * Solving with other matrix algebra methods
 3. **Nonlinearity in Finance**
-  * Nonlinearity modeling
-  * Root-finding algorithms
-  * SciPy implementations in root-finding
+    * Nonlinearity modeling
+    * Root-finding algorithms
+    * SciPy implementations in root-finding
 4. **Numerical Methods for Pricing Options**
-  * Binomial trees in option pricing
-  * Pricing European and American options
-  * The Greeks for free
-  * Trinomial trees in option pricing
-  * Lattices in option pricing
-  * Finite differences in option pricing
+    * Binomial trees in option pricing
+    * Pricing European and American options
+    * The Greeks for free
+    * Trinomial trees in option pricing
+    * Lattices in option pricing
+    * Finite differences in option pricing
 
 ### Dependencies
 * [`Python`](https://www.python.org/) >= 3.7
