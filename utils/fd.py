@@ -16,7 +16,7 @@ from utils.enums import OptionRight, OptionType
 from utils.misc import is_pos
 
 
-__all__ = ['BaseFiniteDifferences', 'FDExplicitEu']
+__all__ = ['BaseFiniteDifferences', 'FDExplicitEu', 'FDImplicitEu']
 
 
 @dataclass(init=False)

@@ -134,7 +134,7 @@ def american_option() -> None:
     K = 52
     T = 2
     option_right = 'Put'
-    option_type = 'European'
+    option_type = 'American'
     r = 0.05
     N = 2
     u = 1.2
