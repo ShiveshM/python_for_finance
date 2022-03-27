@@ -17,7 +17,7 @@ from utils.misc import is_pos
 
 __all__ = ['BaseBinomialTree', 'BinomialTreeOption', 'BinomialCCROption',
            'BinomialLROption', 'BinomialResult', 'BinomialLRWithGreeks',
-           'TrinomialTreeOption', 'BinomialCCRLattice']
+           'TrinomialTreeOption', 'BinomialCCRLattice', 'TrinomialLattice']
 
 
 @dataclass(init=False)

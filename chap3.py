@@ -11,10 +11,9 @@ Ma Weiming's "Mastering Python for Finance", published by Packt.
 from typing import Callable, Tuple
 
 
-__all__ = ['incremental', 'bisection', 'newtons', 'secant', 'scipy',
-           'scipy_general']
+__all__ = ["incremental", "bisection", "newtons", "secant", "scipy", "scipy_general"]
 
-STR_FMT = '{0}\n{1}\n'
+STR_FMT = "{0}\n{1}\n"
 """String formatting for printing to standard output."""
 
 
@@ -22,10 +21,12 @@ def incremental() -> None:
     """Incremental search root-finding algorithm."""
     import numpy as np
 
-    def incremental_search(func: Callable[[float], float],
-                           bounds: Tuple[int],
-                           tol: float = 1E-7,
-                           max_iter : float = 1E6) -> (float, int):
+    def incremental_search(
+        func: Callable[[float], float],
+        bounds: Tuple[int],
+        tol: float = 1e-7,
+        max_iter: float = 1e6,
+    ) -> (float, int):
         """
         Incremental search algorithm.
 
@@ -72,10 +73,10 @@ def incremental() -> None:
         return (x + y) / 2, n_iter
 
     # Find the root of a test function
-    y = lambda x: x**3 + 2 * x**2 - 5
+    y = lambda x: x ** 3 + 2 * x ** 2 - 5
     root, iterations = incremental_search(y, (-5, 5))
-    print(STR_FMT.format('root', root))
-    print(STR_FMT.format('iterations', iterations))
+    print(STR_FMT.format("root", root))
+    print(STR_FMT.format("iterations", iterations))
 
 
 def bisection() -> None:
@@ -99,10 +100,13 @@ def bisection() -> None:
     of the search boundary.
 
     """
-    def bisection_method(func: Callable[[float], float],
-                         bounds: Tuple[int],
-                         tol: float = 1E-6,
-                         max_iter: int = 1E6) -> (float, int):
+
+    def bisection_method(
+        func: Callable[[float], float],
+        bounds: Tuple[int],
+        tol: float = 1e-6,
+        max_iter: int = 1e6,
+    ) -> (float, int):
         """
         Bisection method algorithm.
 
@@ -142,10 +146,10 @@ def bisection() -> None:
         return c, n_iter
 
     # Find the root of a test function
-    y = lambda x: x**3 + 2 * x**2 - 5
+    y = lambda x: x ** 3 + 2 * x ** 2 - 5
     root, iterations = bisection_method(y, (-5, 5))
-    print(STR_FMT.format('root', root))
-    print(STR_FMT.format('iterations', iterations))
+    print(STR_FMT.format("root", root))
+    print(STR_FMT.format("iterations", iterations))
 
 
 def newtons() -> None:
@@ -172,11 +176,14 @@ def newtons() -> None:
     function be differentiable.
 
     """
-    def newtons_method(func: Callable[[float], float],
-                       df: Callable[[float], float],
-                       seed: float,
-                       tol: float = 1E-6,
-                       max_iter: int = 1E6) -> (float, int):
+
+    def newtons_method(
+        func: Callable[[float], float],
+        df: Callable[[float], float],
+        seed: float,
+        tol: float = 1e-6,
+        max_iter: int = 1e6,
+    ) -> (float, int):
         """
         Newton's method algorithm.
 
@@ -214,12 +221,12 @@ def newtons() -> None:
         return None, n_iter
 
     # Find the root of a test function
-    y = lambda x: x**3 + 2 * x**2 - 5
-    dy = lambda x: (3 * x**2) + 4 * x
+    y = lambda x: x ** 3 + 2 * x ** 2 - 5
+    dy = lambda x: (3 * x ** 2) + 4 * x
     seed = 5
     root, iterations = newtons_method(y, dy, seed)
-    print(STR_FMT.format('root', root))
-    print(STR_FMT.format('iterations', iterations))
+    print(STR_FMT.format("root", root))
+    print(STR_FMT.format("iterations", iterations))
 
 
 def secant() -> None:
@@ -251,10 +258,13 @@ def secant() -> None:
     faster than the bisection method and slower than Newton's method.
 
     """
-    def secant_method(func: Callable[[float], float],
-                      bounds: Tuple[int],
-                      tol: float = 1E-6,
-                      max_iter: int = 1E6) -> (float, int):
+
+    def secant_method(
+        func: Callable[[float], float],
+        bounds: Tuple[int],
+        tol: float = 1e-6,
+        max_iter: int = 1e6,
+    ) -> (float, int):
         """
         Secant method algorithm.
 
@@ -292,10 +302,10 @@ def secant() -> None:
         return None, n_iter
 
     # Find the root of a test function
-    y = lambda x: x**3 + 2 * x**2 - 5
+    y = lambda x: x ** 3 + 2 * x ** 2 - 5
     root, iterations = secant_method(y, (-5, 5))
-    print(STR_FMT.format('root', root))
-    print(STR_FMT.format('iterations', iterations))
+    print(STR_FMT.format("root", root))
+    print(STR_FMT.format("iterations", iterations))
 
 
 def scipy() -> None:
@@ -312,26 +322,22 @@ def scipy() -> None:
     import scipy.optimize as optimize
 
     # Define a test function
-    y = lambda x: x**3 + 2 * x**2 - 5
-    dy = lambda x: (3 * x**2) + 4 * x
+    y = lambda x: x ** 3 + 2 * x ** 2 - 5
+    dy = lambda x: (3 * x ** 2) + 4 * x
 
     # Call method: bisect(f, a, b[, args, xtol, rtol, maxiter, ...])
-    print(STR_FMT.format('Bisection Method:',
-                         optimize.bisect(y, -5, 5, xtol=1E-6)))
+    print(STR_FMT.format("Bisection Method:", optimize.bisect(y, -5, 5, xtol=1e-6)))
 
     # Call method: newton(func, x0[, fprime, args, tol, ...])
-    print(STR_FMT.format('Newton\'s Method:',
-                         optimize.newton(y, 5, fprime=dy)))
+    print(STR_FMT.format("Newton's Method:", optimize.newton(y, 5, fprime=dy)))
 
     # When fprime=None, the secant method is used
-    print(STR_FMT.format('Secant Method:',
-                         optimize.newton(y, 5)))
+    print(STR_FMT.format("Secant Method:", optimize.newton(y, 5)))
 
     # Call method: brentq(f, a, b[, args, xtol, rtol, maxiter, ...])
     # This method combines the bisection root-finding method, secant method,
     # and inverse quadratic interpolation
-    print(STR_FMT.format('Brent\'s Method:',
-                         optimize.brentq(y, -5, 5)))
+    print(STR_FMT.format("Brent's Method:", optimize.brentq(y, -5, 5)))
 
 
 def scipy_general() -> None:
@@ -348,36 +354,38 @@ def scipy_general() -> None:
     import scipy.optimize as optimize
 
     # Define a test function
-    y = lambda x: x**3 + 2 * x**2 - 5
-    dy = lambda x: (3 * x**2) + 4 * x
+    y = lambda x: x ** 3 + 2 * x ** 2 - 5
+    dy = lambda x: (3 * x ** 2) + 4 * x
 
     # Call method: fsolve(func, x0[, args, fprime, ...])
     # Find the roots of a function
-    print(STR_FMT.format('optimize.fsolve',
-                         optimize.fsolve(y, 5, fprime=dy)))
+    print(STR_FMT.format("optimize.fsolve", optimize.fsolve(y, 5, fprime=dy)))
 
     # Call method: root(fun, x0[, args, method, jac, tol, ...])
     # Find the root of a vector function
-    print(STR_FMT.format('optimize.root',
-                         optimize.root(y, 5)))
+    print(STR_FMT.format("optimize.root", optimize.root(y, 5)))
 
 
 def main() -> None:
     """Main program, used when run as a script."""
     import argparse
+
     parser = argparse.ArgumentParser(
-        description='Mastering Python for Finance - Chapter 3'
+        description="Mastering Python for Finance - Chapter 3"
     )
-    parser.add_argument('functions', nargs='*', help=f'Choose from {__all__}')
+    parser.add_argument("functions", nargs="*", help=f"Choose from {__all__}")
     args = parser.parse_args()
 
     functions = args.functions if args.functions else __all__
     for f in functions:
         if f not in __all__:
             raise ValueError(f'Invalid function "{f}" (choose from {__all__})')
-        print('------', f'\nRunning "{f}"')
+        print("------", f'\nRunning "{f}"')
         globals()[f]()
-        print('------')
+        print("------")
+
+
+main.__doc__ = __doc__
 
 
 if __name__ == "__main__":

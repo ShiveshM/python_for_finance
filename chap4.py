@@ -784,5 +784,8 @@ def main() -> None:
         print('------')
 
 
+main.__doc__ = __doc__
+
+
 if __name__ == "__main__":
     main()
