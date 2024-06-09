@@ -76,7 +76,7 @@ class BaseBinomialTree(ABC, BaseDataclass):
     @N.setter
     def N(self, val: int) -> None:
         """Set the number of increments."""
-        if not isinstance(val, (int, np.int)):
+        if not isinstance(val, int):
             raise ValueError(
                 f'Expected integer, instead got {val} with type {type(val)}'
             )
@@ -127,7 +127,7 @@ class BaseBinomialTree(ABC, BaseDataclass):
             st = np.concatenate(
                 (prev_branches * self.u, [prev_branches[-1] * self.d])
             )
-            self.STs.append(st) # Add nodes at each time step
+            self.STs.append(st)  # Add nodes at each time step
 
     def init_payoffs_tree(self) -> List[float]:
         """Returns the payoffs when the option expires at maturity."""
@@ -504,7 +504,7 @@ class BinomialLRWithGreeks(BinomialLROption):
             st = np.concatenate(
                 (prev_branches * self.u, [prev_branches[-1] * self.d])
             )
-            self.STs.append(st) # Add nodes at each time step
+            self.STs.append(st)  # Add nodes at each time step
 
     def price(self) -> BinomialResult:
         """Entry point of the pricing implementation."""
@@ -714,7 +714,7 @@ class BinomialCCRLattice(BinomialCCROption):
 
     def init_payoffs_tree(self) -> List[float]:
         """Returns the payoffs when the option expires at maturity."""
-        odd_nodes = self.STs[::2] # Take odd nodes only
+        odd_nodes = self.STs[::2]  # Take odd nodes only
         if self.option_right is OptionRight.Call:
             return np.maximum(0, odd_nodes - self.K)
         return np.maximum(0, self.K - odd_nodes)
@@ -725,8 +725,8 @@ class BinomialCCRLattice(BinomialCCROption):
         Returns the maximum payoff values between exercising early and not
         exercising the option at all.
         """
-        self.STs = self.STs[1: -1] # Shortens ends of the list
-        odd_STs = self.STs[::2] # Take odd nodes only
+        self.STs = self.STs[1: -1]  # Shortens ends of the list
+        odd_STs = self.STs[::2]  # Take odd nodes only
         if self.option_right is OptionRight.Call:
             return np.maximum(payoffs, odd_STs - self.K)
         return np.maximum(payoffs, self.K - odd_STs)
@@ -799,7 +799,7 @@ class TrinomialLattice(TrinomialTreeOption):
         Returns the maximum payoff values between exercising early and not
         exercising the option at all.
         """
-        self.STs = self.STs[1: -1] # Shortens ends of the list
+        self.STs = self.STs[1: -1]  # Shortens ends of the list
         if self.option_right is OptionRight.Call:
             return np.maximum(payoffs, self.STs - self.K)
         return np.maximum(payoffs, self.K - self.STs)

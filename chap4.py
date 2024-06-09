@@ -631,6 +631,7 @@ def finite_diff_explicit() -> None:
     print(STR_FMT.format('European option put price at T0:',
                          '${:.2f}'.format(option.price())))
 
+
 def implicit() -> None:
     r"""
     Implicit Finite Difference Method for Black Scholes.
@@ -672,7 +673,7 @@ def implicit() -> None:
 
 [ b1  c1  0   0    0    0   ] [  f_{1, j}  ]   [ a1 f_{0, j} ]   [  f_{1, j+1}  ]
 [ a2  b2  c2  0    0    0   ] [  f_{2, j}  ]   [      0      ]   [  f_{2, j+1}  ]
-[ 0   0   b3 ...   0    0   ] [  f_{3, j}  ] + [      0      ] = [  f_{3, j+1}  ]
+[ 0   a3  b3 ...   0    0   ] [  f_{3, j}  ] + [      0      ] = [  f_{3, j+1}  ]
 [ ⁞   ⁞   ⁞   ⋱    ⁞    ⁞   ] [     ⁞      ]   [      ⁞      ]   [       ⁞      ]
 [ 0   0   0  aM-2 bM-2 cM-2 ] [ f_{M-2, j} ]   [      0      ]   [ f_{M-2, j+1} ]
 [ 0   0   0   0   aM-1 bM-1 ] [ f_{M-1, j} ]   [cM-1 f_{M, j}]   [ f_{M-1, j+1} ]
@@ -680,7 +681,7 @@ def implicit() -> None:
     Rearranging,
 [ b1  c1  0   0    0    0   ] [  f_{1, j}  ]   [  f_{1, j+1}  ]   [ a1 f_{0, j} ]
 [ a2  b2  c2  0    0    0   ] [  f_{2, j}  ]   [  f_{2, j+1}  ]   [      0      ]
-[ 0   0   b3 ...   0    0   ] [  f_{3, j}  ] = [  f_{3, j+1}  ] - [      0      ]
+[ 0   a3  b3 ...   0    0   ] [  f_{3, j}  ] = [  f_{3, j+1}  ] - [      0      ]
 [ ⁞   ⁞   ⁞   ⋱    ⁞    ⁞   ] [     ⁞      ]   [       ⁞      ]   [      ⁞      ]
 [ 0   0   0  aM-2 bM-2 cM-2 ] [ f_{M-2, j} ]   [ f_{M-2, j+1} ]   [      0      ]
 [ 0   0   0   0   aM-1 bM-1 ] [ f_{M-1, j} ]   [ f_{M-1, j+1} ]   [cM-1 f_{M, j}]
@@ -699,8 +700,8 @@ def implicit() -> None:
     T = 5/12
     r = 0.1
     vol = 0.4
-    N = 1000
-    M = 100
+    N = 5  # time grid
+    M = 10  # strike grid
     Smax = 100
 
     # European option
@@ -716,13 +717,13 @@ def implicit() -> None:
     print(STR_FMT.format('European option call price at T0:',
                          '${:.2f}'.format(option.price())))
 
-    # Now we see no instability issues
-    option.option_right = 'Put'
-    option.N = 100
-    option.M = 80
-    print(STR_FMT.format('option', f'{option}'))
-    print(STR_FMT.format('European option put price at T0:',
-                         '${:.2f}'.format(option.price())))
+    # # Now we see no instability issues
+    # option.option_right = 'Put'
+    # option.N = 100
+    # option.M = 80
+    # print(STR_FMT.format('option', f'{option}'))
+    # print(STR_FMT.format('European option put price at T0:',
+    #                      '${:.2f}'.format(option.price())))
 
 
 def crank_nicolson() -> None:

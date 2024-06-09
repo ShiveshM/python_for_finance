@@ -81,7 +81,7 @@ class BaseFiniteDifferences(ABC, BaseDataclass):
     @N.setter
     def N(self, val: int) -> None:
         """Set the number of increments."""
-        if not isinstance(val, (int, np.int)):
+        if not isinstance(val, int):
             raise ValueError(
                 f'Expected integer, instead got {val} with type {type(val)}'
             )
@@ -98,7 +98,7 @@ class BaseFiniteDifferences(ABC, BaseDataclass):
     @M.setter
     def M(self, val: int) -> None:
         """Set the number of underlying increments."""
-        if not isinstance(val, (int, np.int)):
+        if not isinstance(val, int):
             raise ValueError(
                 f'Expected integer, instead got {val} with type {type(val)}'
             )
@@ -115,7 +115,7 @@ class BaseFiniteDifferences(ABC, BaseDataclass):
     @Smax.setter
     def Smax(self, val: int) -> None:
         """Set the number of underlying increments."""
-        if not isinstance(val, (int, np.int)):
+        if not isinstance(val, int):
             raise ValueError(
                 f'Expected integer, instead got {val} with type {type(val)}'
             )
@@ -219,12 +219,17 @@ class FDExplicitEu(BaseFiniteDifferences):
         """Setup the boundary conditions"""
         if self.option_right == OptionRight.Call:
             self.grid[:, -1] = np.maximum(0, self.boundary_conds - self.K)
-            self.grid[-1,: -1] = (self.Smax - self.K) * \
+            self.grid[-1, : -1] = (self.Smax - self.K) * \
                 np.exp(-self.net_r * self.dt * (self.N - self.t_steps))
         else:
             self.grid[:, -1] = np.maximum(0, self.K - self.boundary_conds)
-            self.grid[0,: -1] = (self.K - self.boundary_conds[0]) * \
+            self.grid[0, : -1] = (self.K - self.boundary_conds[0]) * \
                 np.exp(-self.net_r * self.dt * (self.N - self.t_steps))
+        # print("shape={} (underlying x time)".format(self.grid.shape))
+        # print(
+        #     "at expiry :, -1 shape={}\n{}".format(self.grid[:, -1].shape, self.grid[:, -1]))
+        # print(
+        #     "-1,:-1 shape={}\n{}".format(self.grid[-1, :-1].shape, self.grid[-1, :-1]))
 
     def setup_coefficients(self) -> None:
         """Setup the coefficients."""
@@ -238,11 +243,6 @@ class FDExplicitEu(BaseFiniteDifferences):
         """Iterate the grid backwards in time."""
         for i_t in reversed(self.t_steps):
             for i_s in range(1, self.M):
-                if self.option_type is OptionType.American:
-                    val = self.check_early_exercise(i_s)
-                    if val > 0:
-                        self.grid[i_s, i_t] = val
-                        continue
                 self.grid[i_s, i_t] = \
                     self.a[i_s] * self.grid[i_s - 1, i_t + 1] + \
                     self.b[i_s] * self.grid[i_s, i_t + 1] + \
@@ -294,11 +294,11 @@ class FDImplicitEu(BaseFiniteDifferences):
         """Setup the boundary conditions"""
         if self.option_right == OptionRight.Call:
             self.grid[:, -1] = np.maximum(0, self.boundary_conds - self.K)
-            self.grid[-1,: -1] = (self.Smax - self.K) * \
+            self.grid[-1, : -1] = (self.Smax - self.K) * \
                 np.exp(-self.net_r * self.dt * (self.N - self.t_steps))
         else:
             self.grid[:, -1] = np.maximum(0, self.K - self.boundary_conds)
-            self.grid[0,: -1] = (self.K - self.boundary_conds[0]) * \
+            self.grid[0, : -1] = (self.K - self.boundary_conds[0]) * \
                 np.exp(-self.net_r * self.dt * (self.N - self.t_steps))
 
     def setup_coefficients(self) -> None:
@@ -308,9 +308,11 @@ class FDImplicitEu(BaseFiniteDifferences):
         self.b = 1 + self.dt * (self.net_r + self.vol**2 * self.s_steps**2)
         self.c = -(1/2) * self.dt * (self.net_r * self.s_steps +
                                      self.vol**2 * self.s_steps**2)
+        # Square matrix in (strike - 1) space of finite difference coeffs
+        # linking together the payoffs in a single time slice.
         self.coeffs = np.diag(self.a[2: self.M], -1) + \
-                      np.diag(self.b[1: self.M]) + \
-                      np.diag(self.c[1: self.M - 1], 1)
+            np.diag(self.b[1: self.M]) + \
+            np.diag(self.c[1: self.M - 1], 1)
 
     def traverse_grid(self) -> None:
         """Solve using linear system of equations."""
@@ -322,6 +324,7 @@ class FDImplicitEu(BaseFiniteDifferences):
         aux = np.zeros(self.M - 1)
 
         for i_t in reversed(range(self.N)):
+            print(f"{self.grid[0]=}\n{self.grid[-1]=}\n")
             aux[0] = np.dot(-self.a[1], self.grid[0, i_t])
             B = self.grid[1: self.M, i_t + 1] + aux
 

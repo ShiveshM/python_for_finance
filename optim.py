@@ -320,15 +320,15 @@ def levenberg_marquardt() -> None:
             y1 = func(x1)
             # print(f"{grad0=}, {hinv0 @ grad0=}, {ld0=}, {x0=}, {y0=}, {x1=}, {y1=}")
 
-            w, v = np.linalg.eig(hinv0)
-            for ev in w:
-                if np.real(ev) < 0:
-                    print(
-                        f"{x0=}, {x1=}, {y0=}, {y1=}, hessian matrix is not positive semi definite:\n{hinv0=}\neigenvalues = {w}\n{(x1-x0).T @ (hes0 + lambda0) @ (x1-x0)=}"
-                    )
+            # w, v = np.linalg.eig(hinv0)
+            # for ev in w:
+            #     if np.real(ev) < 0:
+            #         print(
+            #             f"{x0=}, {x1=}, {y0=}, {y1=}, hessian matrix is not positive semi definite:\n{hinv0=}\neigenvalues = {w}\n{(x1-x0).T @ (hes0 + lambda0) @ (x1-x0)=}"
+            #         )
 
             if y1 > y0:
-                ld0 = min(1e2, ld0 * lfactor)
+                ld0 = min(1e3, ld0 * lfactor)
                 lambda0 = np.identity(len(hes0), dtype=float) * ld0
                 # lambda0 = np.diag(np.diag(hes0)) * ld0
                 hinv0 = np.linalg.inv(hes0 + lambda0)
@@ -351,6 +351,18 @@ def levenberg_marquardt() -> None:
     # Minimum should be [1.0, 1.0] - success
     y = lambda x: (1.0 - x[0]) ** 2 + 100.0 * (x[1] - x[0] ** 2) ** 2
     minx, iterations = lm(y, [1.0, 100.0])
+    print(f"{minx=}")
+    print(f"{iterations=}")
+
+    y = lambda x: (1.0 - x[0]) ** 2 + 100.0 * (x[1] - x[0] ** 2) ** 2
+    minx, iterations = lm(y, minx)
+    print(f"{minx=}")
+    print(f"{iterations=}")
+
+    # Find the minimum of a test function
+    # Minimum should be [1.0] - success
+    y = lambda x: (1.0 - x[0]) ** 2 + 100.0 * (1.0 - x[0] ** 2) ** 2
+    minx, iterations = lm(y, [0.12733148557205401])
     print(f"{minx=}")
     print(f"{iterations=}")
 
